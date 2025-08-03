@@ -1,0 +1,11 @@
+services:
+  node-1:
+    image: ubuntu-net:latest
+    container_name: node-1
+    network_mode: "none"
+    tty: true
+  node-2:
+    image: ubuntu-net:latest
+    container_name: node-2
+    network_mode: "none"
+    tty: true
