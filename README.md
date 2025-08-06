@@ -116,3 +116,9 @@ chmod +x start.sh stop.sh scripts/start-services.sh
 ```bash
 ./clean.sh
 ```
+# WOrkflow
+
+1. build containers with docker-compose.yml
+2. setup the internet
+3. run the ns-3 network simulator
+4. run the related client and run the ethereum testnet;

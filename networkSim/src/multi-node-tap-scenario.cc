@@ -73,8 +73,8 @@ int
 main(int argc, char* argv[])
 {
     // Default values
-    uint32_t nNodes = 2;
-    std::string tapPrefix = "tap-node";
+    uint32_t nNodes = 4;  // Default to 4 beacon-chain nodes
+    std::string tapPrefix = "tap-beacon";
     double simulationTime = 600.0; // 10 minutes
     std::string dataRate = "100Mbps";
     std::string delay = "6560ns";

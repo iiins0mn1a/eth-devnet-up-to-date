@@ -1,0 +1,196 @@
+time="2025-08-06 07:01:31" level=info msg="Finished reading JWT secret from /execution/jwtsecret" prefix=execution
+time="2025-08-06 07:01:31" level=error msg="enable-debug-rpc-endpoints is deprecated and has no effect. Do not use this flag, it will be deleted soon." prefix=flags
+time="2025-08-06 07:01:31" level=warning msg="Running on custom Ethereum network specified in a chain configuration yaml file" prefix=flags
+time="2025-08-06 07:01:31" level=warning msg="Fee recipient 0x123463a4b065722e99115d6c222f267d9cabb524 is not a checksum Ethereum address. The checksummed address is 0x123463a4B065722E99115D6c222f267d9cABb524 and will be used as the fee recipient. We recommend using a mixed-case address (checksum) to prevent spelling mistakes in your fee recipient Ethereum address" prefix=node
+time="2025-08-06 07:01:31" level=info msg="Default fee recipient is set to 0x123463a4B065722E99115D6c222f267d9cABb524, recipient may be overwritten from validator client and persist in db. Default fee recipient will be used as a fall back" prefix=node
+time="2025-08-06 07:01:31" level=info msg="Checking DB" databasePath="/consensus/beacondata1/beaconchaindata" prefix=node
+time="2025-08-06 07:01:31" level=info msg="Opening Bolt DB" path="/consensus/beacondata1/beaconchaindata/beaconchain.db" prefix=db
+time="2025-08-06 07:01:31" level=warning msg="Removing database" prefix=node
+time="2025-08-06 07:01:31" level=info msg="Opening Bolt DB" path="/consensus/beacondata1/beaconchaindata/beaconchain.db" prefix=db
+time="2025-08-06 07:01:31" level=info msg="Loading genesis state from disk." hash=0x02e3b5c751a5614c09ccd51fce634ec8ba6e74bbcc0d04711ab51888bebc9cda prefix=genesis
+time="2025-08-06 07:01:31" level=info msg="Deposit contract" address=0x4242424242424242424242424242424242424242 prefix=node
+time="2025-08-06 07:01:31" level=info msg="Blob filesystem cache warm-up started. This may take a few minutes." prefix=filesystem
+time="2025-08-06 07:01:31" level=info msg="Blob filesystem cache warm-up complete." elapsed=49.172µs prefix=filesystem
+time="2025-08-06 07:01:31" level=warning msg="No bootstrap addresses supplied" prefix=p2p
+time="2025-08-06 07:01:31" level=info msg="Wrote network key to file" path="/consensus/beacondata1/network-keys" prefix=p2p
+time="2025-08-06 07:01:31" level=info msg="Running node with peer id of 16Uiu2HAm9VXauiSygTnWuBfuoP6XFftfqmo5FkLfAPrBhkEtsmet " prefix=p2p
+2025/08/06 07:01:31 failed to sufficiently increase receive buffer size (was: 208 kiB, wanted: 7168 kiB, got: 416 kiB). See https://github.com/quic-go/quic-go/wiki/UDP-Buffer-Sizes for details.
+time="2025-08-06 07:01:31" level=info msg="gRPC server listening on port" address="0.0.0.0:4000" prefix=rpc
+time="2025-08-06 07:01:31" level=warning msg="You are using an insecure gRPC server. If you are running your beacon node and validator on the same machines, you can ignore this message. If you want to know how to enable secure connections, see: https://docs.prylabs.network/docs/prysm-usage/secure-grpc" prefix=rpc
+time="2025-08-06 07:01:31" level=info msg="Starting beacon node" prefix=node version="Prysm/v5.3.2/6180b5a560d56966b3efaa44a3b3871947a41db6. Built at: 2025-04-14 14:55:14+00:00"
+time="2025-08-06 07:01:31" level=info msg="Waiting for state to be initialized" prefix=initial-sync
+time="2025-08-06 07:01:31" level=info msg="Starting HTTP server" address="0.0.0.0:7777" prefix=httprest
+time="2025-08-06 07:01:31" level=info msg="Backfill service not enabled" prefix=backfill
+time="2025-08-06 07:01:31" level=info msg="Backfill service marked as complete" prefix=backfill
+time="2025-08-06 07:01:31" level=info msg="Blockchain data already exists in DB, initializing..." prefix=blockchain
+time="2025-08-06 07:01:31" level=error msg="Could not clean up dirty states" error="OriginBlockRoot: not found in db" prefix=state-gen
+time="2025-08-06 07:01:31" level=info msg="Initialized head block from DB" prefix=blockchain root=0xa07c16b6c16e0f2aee53b3a650e14038634ed970c88a8740eee94bdbac9b3818 slot=0
+time="2025-08-06 07:01:31" level=info msg="Received state initialized event" prefix=initial-sync
+time="2025-08-06 07:01:31" level=info msg="Slashing pool service received chain initialization event" genesisTime=2025-08-06 07:01:28 +0000 UTC prefix="pool/slashings"
+time="2025-08-06 07:01:31" level=info msg="Due to number of peers required for sync being set at 0, entering regular sync immediately." genesisTime=2025-08-06 07:01:28 +0000 UTC prefix=initial-sync
+time="2025-08-06 07:01:31" level=info msg="Started discovery v5" ENR="enr:-Mq4QMJiTC447XqXhuqqTkmLz5BmJbb87wigySbeZlSPsTWuH5S5mWOwrRN9LssCgqc7NyS8iP-5SyiHuioXgCNrVdiGAZh-L2L0h2F0dG5ldHOIAAAAAAAAAACEZXRoMpBa8xKTIAAAkwAdBAAAAAAAgmlkgnY0gmlwhKwSAAOEcXVpY4IyyIlzZWNwMjU2azGhAtEAcs4wYEGOdG8bvTGGNMIqzoR8lJGZcmar2CRou46liHN5bmNuZXRzAIN0Y3CCMsiDdWRwgi7g" prefix=p2p
+time="2025-08-06 07:01:31" level=info msg="New node record" ENR=enr:-Mq4QPRQ6_0uKWmmbqd1lsqknumYwD-bp9o8tYFBVdT3Co28CV5_QKtqoljqJ0j6t6FEhWXbaugX2XzCz6UgfjzJaN6GAZh-L2L1h2F0dG5ldHOIAAMAAAAAAACEZXRoMpBa8xKTIAAAkwAdBAAAAAAAgmlkgnY0gmlwhKwSAAOEcXVpY4IyyIlzZWNwMjU2azGhAtEAcs4wYEGOdG8bvTGGNMIqzoR8lJGZcmar2CRou46liHN5bmNuZXRzAIN0Y3CCMsiDdWRwgi7g prefix=p2p
+time="2025-08-06 07:01:31" level=info msg="Node started p2p server" multiAddr="/ip4/172.18.0.3/tcp/13000/p2p/16Uiu2HAm9VXauiSygTnWuBfuoP6XFftfqmo5FkLfAPrBhkEtsmet" prefix=p2p
+time="2025-08-06 07:01:31" level=info msg="Node started p2p server" multiAddr="/ip4/172.18.0.3/udp/13000/quic-v1/p2p/16Uiu2HAm9VXauiSygTnWuBfuoP6XFftfqmo5FkLfAPrBhkEtsmet" prefix=p2p
+time="2025-08-06 07:01:31" level=info msg="Subscribed to" prefix=sync topic="/eth2/5af31293/beacon_block/ssz_snappy"
+time="2025-08-06 07:01:31" level=info msg="Subscribed to" prefix=sync topic="/eth2/5af31293/beacon_aggregate_and_proof/ssz_snappy"
+time="2025-08-06 07:01:31" level=info msg="Subscribed to" prefix=sync topic="/eth2/5af31293/voluntary_exit/ssz_snappy"
+time="2025-08-06 07:01:31" level=info msg="Subscribed to" prefix=sync topic="/eth2/5af31293/proposer_slashing/ssz_snappy"
+time="2025-08-06 07:01:31" level=info msg="Subscribed to" prefix=sync topic="/eth2/5af31293/attester_slashing/ssz_snappy"
+time="2025-08-06 07:01:31" level=warning msg="numPerSlot is 0, skipping initializing topic scoring" prefix=p2p
+time="2025-08-06 07:01:31" level=info msg="Subscribed to" prefix=sync topic="/eth2/5af31293/beacon_attestation_8/ssz_snappy"
+time="2025-08-06 07:01:31" level=warning msg="numPerSlot is 0, skipping initializing topic scoring" prefix=p2p
+time="2025-08-06 07:01:31" level=info msg="Subscribed to" prefix=sync topic="/eth2/5af31293/beacon_attestation_9/ssz_snappy"
+time="2025-08-06 07:01:31" level=info msg="Subscribed to" prefix=sync topic="/eth2/5af31293/sync_committee_contribution_and_proof/ssz_snappy"
+time="2025-08-06 07:01:31" level=info msg="Subscribed to" prefix=sync topic="/eth2/5af31293/bls_to_execution_change/ssz_snappy"
+time="2025-08-06 07:01:31" level=info msg="gRPC client connected to beacon node" addr="172.18.0.1:43838" prefix=rpc
+time="2025-08-06 07:01:34" level=info msg="Subscribed to" prefix=sync topic="/eth2/5af31293/sync_committee_0/ssz_snappy"
+time="2025-08-06 07:01:34" level=info msg="Subscribed to" prefix=sync topic="/eth2/5af31293/sync_committee_1/ssz_snappy"
+time="2025-08-06 07:01:34" level=warning msg="numPerSlot is 0, skipping initializing topic scoring" prefix=p2p
+time="2025-08-06 07:01:34" level=info msg="Subscribed to" prefix=sync topic="/eth2/5af31293/sync_committee_2/ssz_snappy"
+time="2025-08-06 07:01:34" level=info msg="Subscribed to" prefix=sync topic="/eth2/5af31293/beacon_attestation_1/ssz_snappy"
+time="2025-08-06 07:01:34" level=warning msg="numPerSlot is 0, skipping initializing topic scoring" prefix=p2p
+time="2025-08-06 07:01:34" level=info msg="Subscribed to" prefix=sync topic="/eth2/5af31293/sync_committee_3/ssz_snappy"
+time="2025-08-06 07:01:34" level=info msg="Subscribed to" prefix=sync topic="/eth2/5af31293/beacon_attestation_2/ssz_snappy"
+time="2025-08-06 07:01:34" level=warning msg="numPerSlot is 0, skipping initializing topic scoring" prefix=p2p
+time="2025-08-06 07:01:34" level=info msg="Subscribed to" prefix=sync topic="/eth2/5af31293/beacon_attestation_3/ssz_snappy"
+time="2025-08-06 07:01:34" level=warning msg="numPerSlot is 0, skipping initializing topic scoring" prefix=p2p
+time="2025-08-06 07:01:34" level=info msg="Subscribed to" prefix=sync topic="/eth2/5af31293/beacon_attestation_4/ssz_snappy"
+time="2025-08-06 07:01:34" level=warning msg="numPerSlot is 0, skipping initializing topic scoring" prefix=p2p
+time="2025-08-06 07:01:34" level=info msg="Subscribed to" prefix=sync topic="/eth2/5af31293/beacon_attestation_5/ssz_snappy"
+time="2025-08-06 07:01:34" level=warning msg="numPerSlot is 0, skipping initializing topic scoring" prefix=p2p
+time="2025-08-06 07:01:34" level=info msg="Subscribed to" prefix=sync topic="/eth2/5af31293/beacon_attestation_0/ssz_snappy"
+time="2025-08-06 07:01:34" level=info msg="Begin building block" prefix="rpc/validator" sinceSlotStartTime=75.703888ms slot=1
+time="2025-08-06 07:01:34" level=warning msg="Beacon Node is no longer connected to an ETH1 chain, so ETH1 data votes are now mocked." prefix="rpc/validator"
+time="2025-08-06 07:01:34" level=info msg="Finished building block" prefix="rpc/validator" sinceSlotStartTime=93.805679ms slot=1 validator=17
+time="2025-08-06 07:01:34" level=info msg="Synced new block" block=0xefd3987d... epoch=0 finalizedEpoch=0 finalizedRoot=0xa07c16b6... prefix=blockchain slot=1
+time="2025-08-06 07:01:34" level=info msg="Finished applying state transition" attestations=1 payloadHash=0x4c4057f6e1e5 prefix=blockchain slot=1 syncBitsCount=128 txCount=0
+time="2025-08-06 07:01:37" level=info msg="New node record" ENR=enr:-Mq4QFHXDI12x4Jy3ZY0LTKrAP9CGl7_eetVMByIP8E2i7fbYiK_LoP7-Y-haQEoOwRvFjP-f-vKRnvegm2JOkVN30KGAZh-L2L2h2F0dG5ldHOIAAMAAAAAAACEZXRoMpBa8xKTIAAAkwAdBAAAAAAAgmlkgnY0gmlwhKwSAAOEcXVpY4IyyIlzZWNwMjU2azGhAtEAcs4wYEGOdG8bvTGGNMIqzoR8lJGZcmar2CRou46liHN5bmNuZXRzD4N0Y3CCMsiDdWRwgi7g prefix=p2p
+time="2025-08-06 07:01:40" level=info msg="Unsubscribed from" prefix=sync topic="/eth2/5af31293/beacon_attestation_1/ssz_snappy"
+time="2025-08-06 07:01:46" level=info msg="Unsubscribed from" prefix=sync topic="/eth2/5af31293/beacon_attestation_2/ssz_snappy"
+time="2025-08-06 07:01:46" level=info msg="Connected to new endpoint" endpoint="http://geth:8551" prefix=execution
+time="2025-08-06 07:01:46" level=error msg="Beacon node is not respecting the follow distance. EL client is syncing." lastBlockNumber=1 prefix=execution
+time="2025-08-06 07:01:48" level=info msg="Forkchoice updated with payload attributes for proposal" blockRoot=0xefd3987d1a09 headSlot=1 nextSlot=4 payloadID=0x02061f4a8f35 prefix=blockchain
+time="2025-08-06 07:01:52" level=info msg="Unsubscribed from" prefix=sync topic="/eth2/5af31293/beacon_attestation_3/ssz_snappy"
+time="2025-08-06 07:01:52" level=info msg="Begin building block" prefix="rpc/validator" sinceSlotStartTime=68.676069ms slot=4
+time="2025-08-06 07:01:52" level=info msg="Finished building block" prefix="rpc/validator" sinceSlotStartTime=70.569054ms slot=4 validator=5
+time="2025-08-06 07:01:52" level=info msg="Synced new block" block=0xff8430d2... epoch=0 finalizedEpoch=0 finalizedRoot=0xa07c16b6... prefix=blockchain slot=4
+time="2025-08-06 07:01:52" level=info msg="Finished applying state transition" attestations=3 payloadHash=0x1e292d2cc3d5 prefix=blockchain slot=4 syncBitsCount=128 txCount=0
+time="2025-08-06 07:01:58" level=info msg="Unsubscribed from" prefix=sync topic="/eth2/5af31293/beacon_attestation_4/ssz_snappy"
+time="2025-08-06 07:02:00" level=info msg="Forkchoice updated with payload attributes for proposal" blockRoot=0xff8430d2a2e6 headSlot=4 nextSlot=6 payloadID=0x0200cf74b84f prefix=blockchain
+time="2025-08-06 07:02:04" level=warning msg="numPerSlot is 0, skipping initializing topic scoring" prefix=p2p
+time="2025-08-06 07:02:04" level=info msg="Subscribed to" prefix=sync topic="/eth2/5af31293/beacon_attestation_1/ssz_snappy"
+time="2025-08-06 07:02:04" level=warning msg="numPerSlot is 0, skipping initializing topic scoring" prefix=p2p
+time="2025-08-06 07:02:04" level=info msg="Subscribed to" prefix=sync topic="/eth2/5af31293/beacon_attestation_2/ssz_snappy"
+time="2025-08-06 07:02:04" level=warning msg="numPerSlot is 0, skipping initializing topic scoring" prefix=p2p
+time="2025-08-06 07:02:04" level=info msg="Subscribed to" prefix=sync topic="/eth2/5af31293/beacon_attestation_3/ssz_snappy"
+time="2025-08-06 07:02:04" level=warning msg="numPerSlot is 0, skipping initializing topic scoring" prefix=p2p
+time="2025-08-06 07:02:04" level=info msg="Subscribed to" prefix=sync topic="/eth2/5af31293/beacon_attestation_4/ssz_snappy"
+time="2025-08-06 07:02:04" level=info msg="Begin building block" prefix="rpc/validator" sinceSlotStartTime=81.383929ms slot=6
+time="2025-08-06 07:02:04" level=info msg="Finished building block" prefix="rpc/validator" sinceSlotStartTime=83.814663ms slot=6 validator=16
+time="2025-08-06 07:02:04" level=info msg="Synced new block" block=0x492cbe01... epoch=1 finalizedEpoch=0 finalizedRoot=0xa07c16b6... prefix=blockchain slot=6
+time="2025-08-06 07:02:04" level=info msg="Finished applying state transition" attestations=2 payloadHash=0xcd7689e9c971 prefix=blockchain slot=6 syncBitsCount=256 txCount=0
+time="2025-08-06 07:02:04" level=info msg="Forkchoice updated with payload attributes for proposal" blockRoot=0x492cbe01c257 headSlot=6 nextSlot=7 payloadID=0x021577793205 prefix=blockchain
+time="2025-08-06 07:02:10" level=info msg="Begin building block" prefix="rpc/validator" sinceSlotStartTime=68.065097ms slot=7
+time="2025-08-06 07:02:10" level=info msg="Finished building block" prefix="rpc/validator" sinceSlotStartTime=70.946303ms slot=7 validator=21
+time="2025-08-06 07:02:10" level=info msg="Synced new block" block=0xe1963692... epoch=1 finalizedEpoch=0 finalizedRoot=0xa07c16b6... prefix=blockchain slot=7
+time="2025-08-06 07:02:10" level=info msg="Finished applying state transition" attestations=1 payloadHash=0x0ea08ba63e65 prefix=blockchain slot=7 syncBitsCount=192 txCount=0
+time="2025-08-06 07:02:10" level=info msg="Forkchoice updated with payload attributes for proposal" blockRoot=0xe19636920fa9 headSlot=7 nextSlot=8 payloadID=0x02912c9f65e9 prefix=blockchain
+time="2025-08-06 07:02:16" level=info msg="Unsubscribed from" prefix=sync topic="/eth2/5af31293/beacon_attestation_1/ssz_snappy"
+time="2025-08-06 07:02:16" level=info msg="Begin building block" prefix="rpc/validator" sinceSlotStartTime=67.751043ms slot=8
+time="2025-08-06 07:02:16" level=info msg="Finished building block" prefix="rpc/validator" sinceSlotStartTime=69.783712ms slot=8 validator=29
+time="2025-08-06 07:02:16" level=info msg="Synced new block" block=0xbc2fc1d3... epoch=1 finalizedEpoch=0 finalizedRoot=0xa07c16b6... prefix=blockchain slot=8
+time="2025-08-06 07:02:16" level=info msg="Finished applying state transition" attestations=1 payloadHash=0x8e56d9e6566a prefix=blockchain slot=8 syncBitsCount=192 txCount=0
+time="2025-08-06 07:02:16" level=info msg="Forkchoice updated with payload attributes for proposal" blockRoot=0xbc2fc1d3f850 headSlot=8 nextSlot=9 payloadID=0x021d7bcfc6a8 prefix=blockchain
+time="2025-08-06 07:02:22" level=info msg="Unsubscribed from" prefix=sync topic="/eth2/5af31293/beacon_attestation_2/ssz_snappy"
+time="2025-08-06 07:02:22" level=info msg="Begin building block" prefix="rpc/validator" sinceSlotStartTime=68.287475ms slot=9
+time="2025-08-06 07:02:22" level=info msg="Finished building block" prefix="rpc/validator" sinceSlotStartTime=70.497878ms slot=9 validator=7
+time="2025-08-06 07:02:22" level=info msg="Synced new block" block=0x960cbe38... epoch=1 finalizedEpoch=0 finalizedRoot=0xa07c16b6... prefix=blockchain slot=9
+time="2025-08-06 07:02:22" level=info msg="Finished applying state transition" attestations=1 payloadHash=0xe4fac84c12fb prefix=blockchain slot=9 syncBitsCount=64 txCount=0
+time="2025-08-06 07:02:28" level=info msg="Unsubscribed from" prefix=sync topic="/eth2/5af31293/beacon_attestation_3/ssz_snappy"
+time="2025-08-06 07:02:31" level=info msg="Connected peers" inboundQUIC=0 inboundTCP=0 outboundQUIC=0 outboundTCP=0 prefix=p2p total=0
+time="2025-08-06 07:02:34" level=info msg="Unsubscribed from" prefix=sync topic="/eth2/5af31293/beacon_attestation_4/ssz_snappy"
+time="2025-08-06 07:02:40" level=warning msg="numPerSlot is 0, skipping initializing topic scoring" prefix=p2p
+time="2025-08-06 07:02:40" level=info msg="Subscribed to" prefix=sync topic="/eth2/5af31293/beacon_attestation_1/ssz_snappy"
+time="2025-08-06 07:02:40" level=warning msg="numPerSlot is 0, skipping initializing topic scoring" prefix=p2p
+time="2025-08-06 07:02:40" level=info msg="Subscribed to" prefix=sync topic="/eth2/5af31293/beacon_attestation_2/ssz_snappy"
+time="2025-08-06 07:02:40" level=warning msg="numPerSlot is 0, skipping initializing topic scoring" prefix=p2p
+time="2025-08-06 07:02:40" level=info msg="Subscribed to" prefix=sync topic="/eth2/5af31293/beacon_attestation_3/ssz_snappy"
+time="2025-08-06 07:02:40" level=warning msg="numPerSlot is 0, skipping initializing topic scoring" prefix=p2p
+time="2025-08-06 07:02:40" level=info msg="Subscribed to" prefix=sync topic="/eth2/5af31293/beacon_attestation_4/ssz_snappy"
+time="2025-08-06 07:02:41" level=error msg="Beacon node is not respecting the follow distance. EL client is syncing." lastBlockNumber=6 prefix=execution
+time="2025-08-06 07:02:42" level=info msg="Forkchoice updated with payload attributes for proposal" blockRoot=0x960cbe38f566 headSlot=9 nextSlot=13 payloadID=0x02a4b3823557 prefix=blockchain
+time="2025-08-06 07:02:46" level=info msg="Begin building block" prefix="rpc/validator" sinceSlotStartTime=72.264046ms slot=13
+time="2025-08-06 07:02:46" level=info msg="Finished building block" prefix="rpc/validator" sinceSlotStartTime=75.462294ms slot=13 validator=9
+time="2025-08-06 07:02:46" level=info msg="Synced new block" block=0x2b1ce2af... epoch=2 finalizedEpoch=0 finalizedRoot=0xa07c16b6... prefix=blockchain slot=13
+time="2025-08-06 07:02:46" level=info msg="Finished applying state transition" attestations=4 payloadHash=0xe06f999d5f62 prefix=blockchain slot=13 syncBitsCount=128 txCount=0
+time="2025-08-06 07:02:46" level=info msg="Forkchoice updated with payload attributes for proposal" blockRoot=0x2b1ce2af0a42 headSlot=13 nextSlot=14 payloadID=0x02393b524438 prefix=blockchain
+time="2025-08-06 07:02:52" level=info msg="Unsubscribed from" prefix=sync topic="/eth2/5af31293/beacon_attestation_1/ssz_snappy"
+time="2025-08-06 07:02:52" level=info msg="Begin building block" prefix="rpc/validator" sinceSlotStartTime=66.280108ms slot=14
+time="2025-08-06 07:02:52" level=info msg="Finished building block" prefix="rpc/validator" sinceSlotStartTime=68.228625ms slot=14 validator=14
+time="2025-08-06 07:02:52" level=info msg="Synced new block" block=0x6b73f2c7... epoch=2 finalizedEpoch=0 finalizedRoot=0xa07c16b6... prefix=blockchain slot=14
+time="2025-08-06 07:02:52" level=info msg="Finished applying state transition" attestations=1 payloadHash=0x71f2ea760048 prefix=blockchain slot=14 syncBitsCount=256 txCount=0
+time="2025-08-06 07:02:58" level=info msg="Unsubscribed from" prefix=sync topic="/eth2/5af31293/beacon_attestation_2/ssz_snappy"
+time="2025-08-06 07:03:04" level=info msg="Unsubscribed from" prefix=sync topic="/eth2/5af31293/beacon_attestation_3/ssz_snappy"
+time="2025-08-06 07:03:06" level=info msg="Forkchoice updated with payload attributes for proposal" blockRoot=0x6b73f2c7609b headSlot=14 nextSlot=17 payloadID=0x022f63ab52df prefix=blockchain
+time="2025-08-06 07:03:09" level=error msg="Beacon node is not respecting the follow distance. EL client is syncing." lastBlockNumber=8 prefix=execution
+time="2025-08-06 07:03:10" level=info msg="Unsubscribed from" prefix=sync topic="/eth2/5af31293/beacon_attestation_4/ssz_snappy"
+time="2025-08-06 07:03:10" level=info msg="Begin building block" prefix="rpc/validator" sinceSlotStartTime=68.434221ms slot=17
+time="2025-08-06 07:03:10" level=info msg="Finished building block" prefix="rpc/validator" sinceSlotStartTime=70.544562ms slot=17 validator=9
+time="2025-08-06 07:03:10" level=info msg="Synced new block" block=0x45442b01... epoch=2 finalizedEpoch=0 finalizedRoot=0xa07c16b6... prefix=blockchain slot=17
+time="2025-08-06 07:03:10" level=info msg="Finished applying state transition" attestations=3 payloadHash=0x51a041b0a124 prefix=blockchain slot=17 syncBitsCount=64 txCount=0
+time="2025-08-06 07:03:10" level=info msg="Forkchoice updated with payload attributes for proposal" blockRoot=0x45442b010e9c headSlot=17 nextSlot=18 payloadID=0x02745e4f450d prefix=blockchain
+time="2025-08-06 07:03:16" level=warning msg="numPerSlot is 0, skipping initializing topic scoring" prefix=p2p
+time="2025-08-06 07:03:16" level=info msg="Subscribed to" prefix=sync topic="/eth2/5af31293/beacon_attestation_1/ssz_snappy"
+time="2025-08-06 07:03:16" level=warning msg="numPerSlot is 0, skipping initializing topic scoring" prefix=p2p
+time="2025-08-06 07:03:16" level=info msg="Subscribed to" prefix=sync topic="/eth2/5af31293/beacon_attestation_2/ssz_snappy"
+time="2025-08-06 07:03:16" level=warning msg="numPerSlot is 0, skipping initializing topic scoring" prefix=p2p
+time="2025-08-06 07:03:16" level=info msg="Subscribed to" prefix=sync topic="/eth2/5af31293/beacon_attestation_3/ssz_snappy"
+time="2025-08-06 07:03:16" level=warning msg="numPerSlot is 0, skipping initializing topic scoring" prefix=p2p
+time="2025-08-06 07:03:16" level=info msg="Subscribed to" prefix=sync topic="/eth2/5af31293/beacon_attestation_4/ssz_snappy"
+time="2025-08-06 07:03:16" level=info msg="Begin building block" prefix="rpc/validator" sinceSlotStartTime=78.034984ms slot=18
+time="2025-08-06 07:03:16" level=info msg="Finished building block" prefix="rpc/validator" sinceSlotStartTime=80.527975ms slot=18 validator=20
+time="2025-08-06 07:03:16" level=info msg="Synced new block" block=0x78e7bc79... epoch=3 finalizedEpoch=0 finalizedRoot=0xa07c16b6... prefix=blockchain slot=18
+time="2025-08-06 07:03:16" level=info msg="Finished applying state transition" attestations=1 payloadHash=0xfd312b0d2920 prefix=blockchain slot=18 syncBitsCount=192 txCount=0
+time="2025-08-06 07:03:16" level=info msg="Forkchoice updated with payload attributes for proposal" blockRoot=0x78e7bc794d29 headSlot=18 nextSlot=19 payloadID=0x02dd451fe134 prefix=blockchain
+time="2025-08-06 07:03:22" level=info msg="Begin building block" prefix="rpc/validator" sinceSlotStartTime=66.885099ms slot=19
+time="2025-08-06 07:03:22" level=info msg="Finished building block" prefix="rpc/validator" sinceSlotStartTime=68.796285ms slot=19 validator=24
+time="2025-08-06 07:03:22" level=info msg="Synced new block" block=0x37ecdcfd... epoch=3 finalizedEpoch=0 finalizedRoot=0xa07c16b6... prefix=blockchain slot=19
+time="2025-08-06 07:03:22" level=info msg="Finished applying state transition" attestations=1 payloadHash=0x0d8c20aef25c prefix=blockchain slot=19 syncBitsCount=128 txCount=0
+time="2025-08-06 07:03:28" level=info msg="Unsubscribed from" prefix=sync topic="/eth2/5af31293/beacon_attestation_1/ssz_snappy"
+time="2025-08-06 07:03:31" level=info msg="Connected peers" inboundQUIC=0 inboundTCP=0 outboundQUIC=0 outboundTCP=0 prefix=p2p total=0
+time="2025-08-06 07:03:34" level=info msg="Unsubscribed from" prefix=sync topic="/eth2/5af31293/beacon_attestation_2/ssz_snappy"
+time="2025-08-06 07:03:37" level=error msg="Beacon node is not respecting the follow distance. EL client is syncing." lastBlockNumber=11 prefix=execution
+time="2025-08-06 07:03:40" level=info msg="Unsubscribed from" prefix=sync topic="/eth2/5af31293/beacon_attestation_3/ssz_snappy"
+time="2025-08-06 07:03:42" level=info msg="Forkchoice updated with payload attributes for proposal" blockRoot=0x37ecdcfd4c9d headSlot=19 nextSlot=23 payloadID=0x02935a7f0684 prefix=blockchain
+time="2025-08-06 07:03:46" level=info msg="Unsubscribed from" prefix=sync topic="/eth2/5af31293/beacon_attestation_4/ssz_snappy"
+time="2025-08-06 07:03:46" level=info msg="Begin building block" prefix="rpc/validator" sinceSlotStartTime=69.574091ms slot=23
+time="2025-08-06 07:03:46" level=info msg="Finished building block" prefix="rpc/validator" sinceSlotStartTime=72.619985ms slot=23 validator=14
+time="2025-08-06 07:03:46" level=info msg="Synced new block" block=0x85b9e669... epoch=3 finalizedEpoch=0 finalizedRoot=0xa07c16b6... prefix=blockchain slot=23
+time="2025-08-06 07:03:46" level=info msg="Finished applying state transition" attestations=4 payloadHash=0x2e1b2fe4ddc3 prefix=blockchain slot=23 syncBitsCount=64 txCount=0
+time="2025-08-06 07:03:46" level=info msg="Forkchoice updated with payload attributes for proposal" blockRoot=0x85b9e669a867 headSlot=23 nextSlot=24 payloadID=0x0228e107b6b7 prefix=blockchain
+time="2025-08-06 07:03:52" level=warning msg="numPerSlot is 0, skipping initializing topic scoring" prefix=p2p
+time="2025-08-06 07:03:52" level=info msg="Subscribed to" prefix=sync topic="/eth2/5af31293/beacon_attestation_1/ssz_snappy"
+time="2025-08-06 07:03:52" level=warning msg="numPerSlot is 0, skipping initializing topic scoring" prefix=p2p
+time="2025-08-06 07:03:52" level=info msg="Subscribed to" prefix=sync topic="/eth2/5af31293/beacon_attestation_2/ssz_snappy"
+time="2025-08-06 07:03:52" level=warning msg="numPerSlot is 0, skipping initializing topic scoring" prefix=p2p
+time="2025-08-06 07:03:52" level=info msg="Subscribed to" prefix=sync topic="/eth2/5af31293/beacon_attestation_3/ssz_snappy"
+time="2025-08-06 07:03:52" level=warning msg="numPerSlot is 0, skipping initializing topic scoring" prefix=p2p
+time="2025-08-06 07:03:52" level=info msg="Subscribed to" prefix=sync topic="/eth2/5af31293/beacon_attestation_4/ssz_snappy"
+time="2025-08-06 07:03:52" level=info msg="Begin building block" prefix="rpc/validator" sinceSlotStartTime=83.168994ms slot=24
+time="2025-08-06 07:03:52" level=info msg="Finished building block" prefix="rpc/validator" sinceSlotStartTime=85.910885ms slot=24 validator=29
+time="2025-08-06 07:03:52" level=warning msg="Expanding committee cache size from 4 to 32"
+time="2025-08-06 07:03:52" level=info msg="Synced new block" block=0x9fee64c6... epoch=4 finalizedEpoch=0 finalizedRoot=0xa07c16b6... prefix=blockchain slot=24
+time="2025-08-06 07:03:52" level=info msg="Finished applying state transition" attestations=1 payloadHash=0xe0882fefb37a prefix=blockchain slot=24 syncBitsCount=64 txCount=0
+time="2025-08-06 07:03:52" level=info msg="Forkchoice updated with payload attributes for proposal" blockRoot=0x9fee64c6f0d9 headSlot=24 nextSlot=25 payloadID=0x023cf7661c57 prefix=blockchain
+time="2025-08-06 07:03:58" level=info msg="Begin building block" prefix="rpc/validator" sinceSlotStartTime=66.314831ms slot=25
+time="2025-08-06 07:03:58" level=info msg="Finished building block" prefix="rpc/validator" sinceSlotStartTime=68.327591ms slot=25 validator=10
+time="2025-08-06 07:03:58" level=info msg="Synced new block" block=0xaae12804... epoch=4 finalizedEpoch=0 finalizedRoot=0xa07c16b6... prefix=blockchain slot=25
+time="2025-08-06 07:03:58" level=info msg="Finished applying state transition" attestations=1 payloadHash=0x94c5de7d0a04 prefix=blockchain slot=25 syncBitsCount=192 txCount=0
+time="2025-08-06 07:03:58" level=info msg="Forkchoice updated with payload attributes for proposal" blockRoot=0xaae128043bc2 headSlot=25 nextSlot=26 payloadID=0x020d74dc9da5 prefix=blockchain
+time="2025-08-06 07:04:04" level=info msg="Unsubscribed from" prefix=sync topic="/eth2/5af31293/beacon_attestation_1/ssz_snappy"
+time="2025-08-06 07:04:04" level=info msg="Begin building block" prefix="rpc/validator" sinceSlotStartTime=70.125777ms slot=26
+time="2025-08-06 07:04:04" level=info msg="Finished building block" prefix="rpc/validator" sinceSlotStartTime=72.221041ms slot=26 validator=4
+time="2025-08-06 07:04:04" level=info msg="Synced new block" block=0x2f5416d6... epoch=4 finalizedEpoch=0 finalizedRoot=0xa07c16b6... prefix=blockchain slot=26
+time="2025-08-06 07:04:04" level=info msg="Finished applying state transition" attestations=1 payloadHash=0x9e8357460240 prefix=blockchain slot=26 syncBitsCount=128 txCount=0
+time="2025-08-06 07:04:04" level=info msg="Forkchoice updated with payload attributes for proposal" blockRoot=0x2f5416d64feb headSlot=26 nextSlot=27 payloadID=0x02e6ee04b883 prefix=blockchain

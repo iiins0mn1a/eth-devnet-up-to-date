@@ -1,6 +1,6 @@
 #!/bin/bash
 
-source scripts/start-services.sh
+./scripts/start-services.sh
 
 echo "Starting Ethereum PoS Devnet..."
 sudo docker compose up -d

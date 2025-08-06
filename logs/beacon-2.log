@@ -1,0 +1,69 @@
+time="2025-08-06 07:08:58" level=info msg="Finished reading JWT secret from /execution/jwtsecret" prefix=execution
+time="2025-08-06 07:08:58" level=error msg="enable-debug-rpc-endpoints is deprecated and has no effect. Do not use this flag, it will be deleted soon." prefix=flags
+time="2025-08-06 07:08:58" level=warning msg="Running on custom Ethereum network specified in a chain configuration yaml file" prefix=flags
+time="2025-08-06 07:08:58" level=warning msg="Fee recipient 0x123463a4b065722e99115d6c222f267d9cabb524 is not a checksum Ethereum address. The checksummed address is 0x123463a4B065722E99115D6c222f267d9cABb524 and will be used as the fee recipient. We recommend using a mixed-case address (checksum) to prevent spelling mistakes in your fee recipient Ethereum address" prefix=node
+time="2025-08-06 07:08:58" level=info msg="Default fee recipient is set to 0x123463a4B065722E99115D6c222f267d9cABb524, recipient may be overwritten from validator client and persist in db. Default fee recipient will be used as a fall back" prefix=node
+time="2025-08-06 07:08:58" level=info msg="Checking DB" databasePath="/consensus/beacondata2/beaconchaindata" prefix=node
+time="2025-08-06 07:08:58" level=info msg="Opening Bolt DB" path="/consensus/beacondata2/beaconchaindata/beaconchain.db" prefix=db
+time="2025-08-06 07:08:58" level=warning msg="Removing database" prefix=node
+time="2025-08-06 07:08:58" level=info msg="Opening Bolt DB" path="/consensus/beacondata2/beaconchaindata/beaconchain.db" prefix=db
+time="2025-08-06 07:08:58" level=info msg="Loading genesis state from disk." hash=0x8f154c4c55617d727f77e985303cc603247ff31ca2362f506f8b2fc5dc94a57e prefix=genesis
+time="2025-08-06 07:08:58" level=info msg="Deposit contract" address=0x4242424242424242424242424242424242424242 prefix=node
+time="2025-08-06 07:08:58" level=info msg="Blob filesystem cache warm-up started. This may take a few minutes." prefix=filesystem
+time="2025-08-06 07:08:58" level=info msg="Blob filesystem cache warm-up complete." elapsed=59.592µs prefix=filesystem
+time="2025-08-06 07:08:58" level=error msg="Invalid address of $(cat /share/bootstrap_enr.txt) provided" error="failed to parse multiaddr "$(cat /share/bootstrap_enr.txt)": must begin with /" prefix=p2p
+time="2025-08-06 07:08:58" level=warning msg="No bootstrap addresses supplied" prefix=p2p
+time="2025-08-06 07:08:58" level=info msg="Wrote network key to file" path="/consensus/beacondata2/network-keys" prefix=p2p
+time="2025-08-06 07:08:58" level=info msg="Running node with peer id of 16Uiu2HAmLSu1fhtoGqS2MstA2FEMdXY82WKhfRFQTjHj7QgzCMzq " prefix=p2p
+2025/08/06 07:08:58 failed to sufficiently increase receive buffer size (was: 208 kiB, wanted: 7168 kiB, got: 416 kiB). See https://github.com/quic-go/quic-go/wiki/UDP-Buffer-Sizes for details.
+time="2025-08-06 07:08:58" level=info msg="gRPC server listening on port" address="0.0.0.0:4000" prefix=rpc
+time="2025-08-06 07:08:58" level=warning msg="You are using an insecure gRPC server. If you are running your beacon node and validator on the same machines, you can ignore this message. If you want to know how to enable secure connections, see: https://docs.prylabs.network/docs/prysm-usage/secure-grpc" prefix=rpc
+time="2025-08-06 07:08:58" level=info msg="Starting beacon node" prefix=node version="Prysm/v5.3.2/6180b5a560d56966b3efaa44a3b3871947a41db6. Built at: 2025-04-14 14:55:14+00:00"
+time="2025-08-06 07:08:58" level=info msg="Waiting for state to be initialized" prefix=initial-sync
+time="2025-08-06 07:08:58" level=info msg="Backfill service not enabled" prefix=backfill
+time="2025-08-06 07:08:58" level=info msg="Backfill service marked as complete" prefix=backfill
+time="2025-08-06 07:08:58" level=info msg="Starting HTTP server" address="0.0.0.0:3500" prefix=httprest
+time="2025-08-06 07:08:58" level=info msg="Blockchain data already exists in DB, initializing..." prefix=blockchain
+time="2025-08-06 07:08:58" level=error msg="Could not clean up dirty states" error="OriginBlockRoot: not found in db" prefix=state-gen
+time="2025-08-06 07:08:58" level=info msg="Initialized head block from DB" prefix=blockchain root=0x94ec86fabee4213592672d4bdf95b1a928afdd938f0b8b4ec20c8c8ecc54b7f8 slot=0
+time="2025-08-06 07:08:58" level=info msg="Received state initialized event" prefix=initial-sync
+time="2025-08-06 07:08:58" level=info msg="Due to number of peers required for sync being set at 0, entering regular sync immediately." genesisTime=2025-08-06 07:08:42 +0000 UTC prefix=initial-sync
+time="2025-08-06 07:08:58" level=info msg="Slashing pool service received chain initialization event" genesisTime=2025-08-06 07:08:42 +0000 UTC prefix="pool/slashings"
+time="2025-08-06 07:08:58" level=info msg="Subscribed to" prefix=sync topic="/eth2/5af31293/beacon_block/ssz_snappy"
+time="2025-08-06 07:08:58" level=info msg="Started discovery v5" ENR="enr:-Mq4QI03sTaI_bhiN1jajpWDxWC2AqYajaifyZHqRRQCT3ylH1BDrvE9vGWPBYM0HjBL2dDTIV-rtf-YRT60SS9suX-GAZh-NjU-h2F0dG5ldHOIAAAAAAAAAACEZXRoMpBa8xKTIAAAkwAdBAAAAAAAgmlkgnY0gmlwhKwSAAWEcXVpY4IyyIlzZWNwMjU2azGhA3PEfVpiddZ3gs-Ig3tS2C7q7V4JYrfsvDgdW8IC8ihSiHN5bmNuZXRzAIN0Y3CCMsiDdWRwgi7g" prefix=p2p
+time="2025-08-06 07:08:58" level=info msg="Subscribed to" prefix=sync topic="/eth2/5af31293/beacon_aggregate_and_proof/ssz_snappy"
+time="2025-08-06 07:08:58" level=info msg="Subscribed to" prefix=sync topic="/eth2/5af31293/voluntary_exit/ssz_snappy"
+time="2025-08-06 07:08:58" level=info msg="Subscribed to" prefix=sync topic="/eth2/5af31293/proposer_slashing/ssz_snappy"
+time="2025-08-06 07:08:58" level=info msg="Subscribed to" prefix=sync topic="/eth2/5af31293/attester_slashing/ssz_snappy"
+time="2025-08-06 07:08:58" level=warning msg="numPerSlot is 0, skipping initializing topic scoring" prefix=p2p
+time="2025-08-06 07:08:58" level=info msg="Subscribed to" prefix=sync topic="/eth2/5af31293/beacon_attestation_11/ssz_snappy"
+time="2025-08-06 07:08:58" level=warning msg="numPerSlot is 0, skipping initializing topic scoring" prefix=p2p
+time="2025-08-06 07:08:58" level=info msg="Subscribed to" prefix=sync topic="/eth2/5af31293/beacon_attestation_12/ssz_snappy"
+time="2025-08-06 07:08:58" level=info msg="Subscribed to" prefix=sync topic="/eth2/5af31293/sync_committee_contribution_and_proof/ssz_snappy"
+time="2025-08-06 07:08:58" level=info msg="Subscribed to" prefix=sync topic="/eth2/5af31293/bls_to_execution_change/ssz_snappy"
+time="2025-08-06 07:08:58" level=info msg="New node record" ENR=enr:-Mq4QFUKll_cF7Qe_3FQ9PFDBqCDLUSaekB1AVWmWfacqvucdYDIvVQgwBDZdDocCjtmDSD2gVKHv4eKjDDSuD1NoyOGAZh-NjU_h2F0dG5ldHOIABgAAAAAAACEZXRoMpBa8xKTIAAAkwAdBAAAAAAAgmlkgnY0gmlwhKwSAAWEcXVpY4IyyIlzZWNwMjU2azGhA3PEfVpiddZ3gs-Ig3tS2C7q7V4JYrfsvDgdW8IC8ihSiHN5bmNuZXRzAIN0Y3CCMsiDdWRwgi7g prefix=p2p
+time="2025-08-06 07:08:58" level=info msg="Node started p2p server" multiAddr="/ip4/172.18.0.5/tcp/13000/p2p/16Uiu2HAmLSu1fhtoGqS2MstA2FEMdXY82WKhfRFQTjHj7QgzCMzq" prefix=p2p
+time="2025-08-06 07:08:58" level=info msg="Node started p2p server" multiAddr="/ip4/172.18.0.5/udp/13000/quic-v1/p2p/16Uiu2HAmLSu1fhtoGqS2MstA2FEMdXY82WKhfRFQTjHj7QgzCMzq" prefix=p2p
+time="2025-08-06 07:08:58" level=info msg="gRPC client connected to beacon node" addr="172.18.0.1:38428" prefix=rpc
+time="2025-08-06 07:09:00" level=warning msg="numPerSlot is 0, skipping initializing topic scoring" prefix=p2p
+time="2025-08-06 07:09:00" level=info msg="Subscribed to" prefix=sync topic="/eth2/5af31293/beacon_attestation_3/ssz_snappy"
+time="2025-08-06 07:09:00" level=warning msg="numPerSlot is 0, skipping initializing topic scoring" prefix=p2p
+time="2025-08-06 07:09:00" level=info msg="Subscribed to" prefix=sync topic="/eth2/5af31293/beacon_attestation_4/ssz_snappy"
+time="2025-08-06 07:09:00" level=warning msg="numPerSlot is 0, skipping initializing topic scoring" prefix=p2p
+time="2025-08-06 07:09:00" level=info msg="Subscribed to" prefix=sync topic="/eth2/5af31293/beacon_attestation_5/ssz_snappy"
+time="2025-08-06 07:09:00" level=info msg="Subscribed to" prefix=sync topic="/eth2/5af31293/sync_committee_0/ssz_snappy"
+time="2025-08-06 07:09:00" level=info msg="Subscribed to" prefix=sync topic="/eth2/5af31293/sync_committee_1/ssz_snappy"
+time="2025-08-06 07:09:00" level=warning msg="numPerSlot is 0, skipping initializing topic scoring" prefix=p2p
+time="2025-08-06 07:09:00" level=info msg="Subscribed to" prefix=sync topic="/eth2/5af31293/beacon_attestation_0/ssz_snappy"
+time="2025-08-06 07:09:00" level=info msg="Subscribed to" prefix=sync topic="/eth2/5af31293/sync_committee_2/ssz_snappy"
+time="2025-08-06 07:09:00" level=info msg="Subscribed to" prefix=sync topic="/eth2/5af31293/sync_committee_3/ssz_snappy"
+time="2025-08-06 07:09:04" level=info msg="New node record" ENR=enr:-Mq4QOtANcVfkV3ZUKxtN8b1DZ_S2LNzJIDkQ4WD_ofV4QaNDtZKIQ5yB7jgG7D_yddtvzku_YnOj4lu6Pnt1fZHEqiGAZh-NjVAh2F0dG5ldHOIABgAAAAAAACEZXRoMpBa8xKTIAAAkwAdBAAAAAAAgmlkgnY0gmlwhKwSAAWEcXVpY4IyyIlzZWNwMjU2azGhA3PEfVpiddZ3gs-Ig3tS2C7q7V4JYrfsvDgdW8IC8ihSiHN5bmNuZXRzD4N0Y3CCMsiDdWRwgi7g prefix=p2p
+time="2025-08-06 07:09:06" level=info msg="Unsubscribed from" prefix=sync topic="/eth2/5af31293/beacon_attestation_3/ssz_snappy"
+time="2025-08-06 07:09:08" level=error msg="Received nil payload ID on VALID engine response" blockHash=0x0000000000000000000000000000000000000000000000000000000000000000 nextSlot=5 prefix=blockchain slot=0
+time="2025-08-06 07:09:12" level=info msg="Unsubscribed from" prefix=sync topic="/eth2/5af31293/beacon_attestation_4/ssz_snappy"
+time="2025-08-06 07:09:12" level=info msg="Begin building block" prefix="rpc/validator" sinceSlotStartTime=37.623365ms slot=5
+time="2025-08-06 07:09:12" level=warning msg="Beacon Node is no longer connected to an ETH1 chain, so ETH1 data votes are now mocked." prefix="rpc/validator"
+time="2025-08-06 07:09:12" level=error msg="Finished building block" error="rpc error: code = Internal desc = Could not get local payload: nil payload with block hash: 0x2b08f07dadcd4000e797e954f166a7a93755954ee6629a6f55691d48beb52fd6" prefix="rpc/validator" sinceSlotStartTime=40.043952ms slot=5 validator=43
+time="2025-08-06 07:09:13" level=info msg="Connected to new endpoint" endpoint="http://geth:8551" prefix=execution
+time="2025-08-06 07:09:13" level=error msg="Beacon node is not respecting the follow distance. EL client is syncing." lastBlockNumber=3 prefix=execution
+time="2025-08-06 07:09:14" level=error msg="Received nil payload ID on VALID engine response" blockHash=0x0000000000000000000000000000000000000000000000000000000000000000 nextSlot=6 prefix=blockchain slot=0

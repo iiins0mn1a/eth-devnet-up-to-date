@@ -6,13 +6,14 @@
 set -e
 
 # 配置变量
-# NODE_COUNT将在main函数中根据参数设置
+# BEACON_SERVICES将在解析yml文件后填充
 BASE_IP="10.0.0"
 SUBNET_MASK="16"
-BRIDGE_PREFIX="br-node"
-TAP_PREFIX="tap-node"
-VETH_PREFIX="veth"
-CONTAINER_PREFIX="node"
+BRIDGE_PREFIX="br-beacon"
+TAP_PREFIX="tap-beacon"
+VETH_PREFIX="veth-beacon"
+CONTAINER_PREFIX="beacon-chain"
+DOCKER_COMPOSE_FILE="../docker-compose-for-ns3.yml"
 
 # 颜色输出
 RED='\033[0;31m'
@@ -20,6 +21,10 @@ GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m' # No Color
+
+# 全局变量
+declare -a BEACON_SERVICES=()
+declare -a BEACON_IPS=()
 
 # 日志函数
 log_info() {
@@ -38,10 +43,43 @@ log_error() {
     echo -e "${RED}[ERROR]${NC} $1"
 }
 
+# 函数：解析docker-compose文件并提取beacon-chain服务
+parse_beacon_services() {
+    log_info "解析docker-compose文件: $DOCKER_COMPOSE_FILE"
+    
+    if [ ! -f "$DOCKER_COMPOSE_FILE" ]; then
+        log_error "Docker-compose文件不存在: $DOCKER_COMPOSE_FILE"
+        return 1
+    fi
+    
+    # 使用grep和awk提取beacon-chain服务名称
+    local services=$(grep -E "^\s*beacon-chain-[0-9]+:" "$DOCKER_COMPOSE_FILE" | sed 's/://g' | awk '{print $1}')
+    
+    if [ -z "$services" ]; then
+        log_error "未找到beacon-chain服务"
+        return 1
+    fi
+    
+    # 清空并重新填充数组
+    BEACON_SERVICES=()
+    BEACON_IPS=()
+    
+    local index=1
+    for service in $services; do
+        BEACON_SERVICES+=("$service")
+        BEACON_IPS+=("${BASE_IP}.${index}")
+        log_info "发现beacon-chain服务: $service -> ${BASE_IP}.${index}"
+        index=$((index + 1))
+    done
+    
+    log_success "解析完成，共发现 ${#BEACON_SERVICES[@]} 个beacon-chain服务"
+    return 0
+}
+
 # 函数：创建tap设备
 create_tap_device() {
-    local node_id=$1
-    local tap_name="${TAP_PREFIX}-${node_id}"
+    local service_name=$1
+    local tap_name="${TAP_PREFIX}-$(echo $service_name | sed 's/beacon-chain-//')"
     
     # 检查tap设备是否已存在
     if ip link show $tap_name >/dev/null 2>&1; then
@@ -49,7 +87,7 @@ create_tap_device() {
         sudo ip link del $tap_name 2>/dev/null || true
     fi
     
-    log_info "创建tap设备: $tap_name"
+    log_info "为服务 $service_name 创建tap设备: $tap_name"
     sudo ip tuntap add $tap_name mode tap
     sudo ip link set $tap_name promisc on
     sudo ip link set $tap_name up
@@ -57,8 +95,8 @@ create_tap_device() {
 
 # 函数：创建bridge
 create_bridge() {
-    local node_id=$1
-    local bridge_name="${BRIDGE_PREFIX}-${node_id}"
+    local service_name=$1
+    local bridge_name="${BRIDGE_PREFIX}-$(echo $service_name | sed 's/beacon-chain-//')"
     
     # 检查bridge是否已存在
     if ip link show $bridge_name >/dev/null 2>&1; then
@@ -66,17 +104,17 @@ create_bridge() {
         sudo ip link del $bridge_name 2>/dev/null || true
     fi
     
-    log_info "创建bridge: $bridge_name"
+    log_info "为服务 $service_name 创建bridge: $bridge_name"
     sudo ip link add name $bridge_name type bridge
     sudo ip link set dev $bridge_name up
 }
 
 # 函数：配置iptables规则
 configure_iptables() {
-    local node_id=$1
-    local bridge_name="${BRIDGE_PREFIX}-${node_id}"
+    local service_name=$1
+    local bridge_name="${BRIDGE_PREFIX}-$(echo $service_name | sed 's/beacon-chain-//')"
     
-    log_info "配置iptables规则: $bridge_name"
+    log_info "为服务 $service_name 配置iptables规则: $bridge_name"
     sudo iptables -I FORWARD -m physdev --physdev-is-bridged -i $bridge_name -p tcp -j ACCEPT
     # 如果需要ARP支持，取消注释下面这行
     # sudo iptables -I FORWARD -m physdev --physdev-is-bridged -i $bridge_name -p arp -j ACCEPT
@@ -84,60 +122,40 @@ configure_iptables() {
 
 # 函数：启动Docker容器
 start_containers() {
-    log_info "启动Docker容器..."
+    log_info "使用现有的docker-compose文件启动容器..."
     
-    # 生成docker-compose.yml
-    generate_docker_compose
+    # 使用现有的docker-compose文件
+    sudo docker compose -f "$DOCKER_COMPOSE_FILE" up -d
     
-    sudo docker compose -f docker-compose.yml up -d
-    
-    # 等待容器启动并检查状态
-    log_info "等待容器启动..."
-    local max_wait=30
+    # 等待beacon-chain容器启动并检查状态
+    log_info "等待beacon-chain容器启动..."
+    local max_wait=60
     local wait_count=0
     
     while [ $wait_count -lt $max_wait ]; do
         local running_count=0
-        for i in $(seq 1 $NODE_COUNT); do
-            local container_name="${CONTAINER_PREFIX}-${i}"
-            if sudo docker inspect --format '{{.State.Running}}' $container_name 2>/dev/null | grep -q "true"; then
+        for service in "${BEACON_SERVICES[@]}"; do
+            if sudo docker inspect --format '{{.State.Running}}' "$service" 2>/dev/null | grep -q "true"; then
                 running_count=$((running_count + 1))
             fi
         done
         
-        if [ $running_count -eq $NODE_COUNT ]; then
-            log_success "所有容器已启动"
+        if [ $running_count -eq ${#BEACON_SERVICES[@]} ]; then
+            log_success "所有beacon-chain容器已启动"
             break
         fi
         
         wait_count=$((wait_count + 1))
-        sleep 1
+        sleep 2
     done
     
     if [ $wait_count -eq $max_wait ]; then
-        log_error "容器启动超时"
+        log_error "beacon-chain容器启动超时"
         return 1
     fi
 }
 
-# 函数：生成docker-compose.yml
-generate_docker_compose() {
-    log_info "生成docker-compose.yml文件..."
-    
-    cat > docker-compose.yml << EOF
-services:
-EOF
-    
-    for i in $(seq 1 $NODE_COUNT); do
-        cat >> docker-compose.yml << EOF
-  ${CONTAINER_PREFIX}-${i}:
-    image: ubuntu-net:latest
-    container_name: ${CONTAINER_PREFIX}-${i}
-    network_mode: "none"
-    tty: true
-EOF
-    done
-}
+
 
 # 函数：获取容器PID
 get_container_pid() {
@@ -173,13 +191,15 @@ setup_network_namespace() {
 
 # 函数：配置容器网络
 configure_container_network() {
-    local node_id=$1
-    local container_name="${CONTAINER_PREFIX}-${node_id}"
-    local bridge_name="${BRIDGE_PREFIX}-${node_id}"
-    local veth_name="${VETH_PREFIX}-${node_id}"
+    local service_name=$1
+    local index=$2
+    local container_name="$service_name"
+    local node_suffix=$(echo $service_name | sed 's/beacon-chain-//')
+    local bridge_name="${BRIDGE_PREFIX}-${node_suffix}"
+    local veth_name="${VETH_PREFIX}-${node_suffix}"
     local pid=$(get_container_pid $container_name)
-    local ip_addr="${BASE_IP}.${node_id}"
-    local mac_addr="12:34:88:5D:61:$(printf "%02X" $node_id)"
+    local ip_addr="${BEACON_IPS[$((index-1))]}"
+    local mac_addr="12:34:88:5D:61:$(printf "%02X" $index)"
     
     # 检查容器是否运行
     if [ -z "$pid" ] || [ "$pid" -eq 0 ]; then
@@ -187,7 +207,7 @@ configure_container_network() {
         return 1
     fi
     
-    log_info "配置容器网络: $container_name (PID: $pid)"
+    log_info "配置容器网络: $container_name (PID: $pid) -> $ip_addr"
     
     # 创建veth pair
     sudo ip link add ${veth_name}-in type veth peer name ${veth_name}-ex
@@ -208,11 +228,12 @@ configure_container_network() {
 
 # 函数：连接tap设备到bridge
 connect_tap_to_bridge() {
-    local node_id=$1
-    local tap_name="${TAP_PREFIX}-${node_id}"
-    local bridge_name="${BRIDGE_PREFIX}-${node_id}"
+    local service_name=$1
+    local node_suffix=$(echo $service_name | sed 's/beacon-chain-//')
+    local tap_name="${TAP_PREFIX}-${node_suffix}"
+    local bridge_name="${BRIDGE_PREFIX}-${node_suffix}"
     
-    log_info "连接tap设备到bridge: $tap_name -> $bridge_name"
+    log_info "连接tap设备到bridge: $tap_name -> $bridge_name (服务: $service_name)"
     sudo ip link set $tap_name master $bridge_name
     sudo ip link set $tap_name up
 }
@@ -224,32 +245,37 @@ show_network_status() {
     log_info "显示网络状态..."
     
     echo -e "\n${YELLOW}=== 网络设备状态 ===${NC}"
-    sudo ip link show | grep -E "(br-node|tap-node|veth)"
+    sudo ip link show | grep -E "(br-beacon|tap-beacon|veth-beacon)"
     
-    echo -e "\n${YELLOW}=== 容器状态 ===${NC}"
-    sudo docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
+    echo -e "\n${YELLOW}=== beacon-chain容器状态 ===${NC}"
+    for service in "${BEACON_SERVICES[@]}"; do
+        echo -n "$service: "
+        sudo docker inspect --format '{{.State.Status}}' "$service" 2>/dev/null || echo "未找到"
+    done
     
     echo -e "\n${YELLOW}=== 网络命名空间 ===${NC}"
-    sudo ls -la /var/run/netns/
+    sudo ls -la /var/run/netns/ 2>/dev/null || echo "无网络命名空间"
     
     echo -e "\n${YELLOW}=== iptables规则 ===${NC}"
-    sudo iptables -L FORWARD -v -n | grep br-node
+    sudo iptables -L FORWARD -v -n | grep br-beacon
 }
 
 # 函数：测试网络连接
 test_network_connectivity() {
-    log_info "测试网络连接..."
+    log_info "测试beacon-chain节点间网络连接..."
     
-    for i in $(seq 1 $NODE_COUNT); do
-        local container_name="${CONTAINER_PREFIX}-${i}"
-        local target_ip="${BASE_IP}.$((i % NODE_COUNT + 1))"
+    local service_count=${#BEACON_SERVICES[@]}
+    for i in $(seq 0 $((service_count - 1))); do
+        local current_service="${BEACON_SERVICES[$i]}"
+        local current_ip="${BEACON_IPS[$i]}"
         
-        if [ "$i" -eq "$NODE_COUNT" ]; then
-            target_ip="${BASE_IP}.1"
-        fi
+        # 测试连接到下一个节点
+        local next_index=$(((i + 1) % service_count))
+        local target_ip="${BEACON_IPS[$next_index]}"
+        local target_service="${BEACON_SERVICES[$next_index]}"
         
-        log_info "测试 $container_name -> $target_ip"
-        sudo docker exec $container_name ping -c 2 $target_ip || log_warning "ping失败: $container_name -> $target_ip"
+        log_info "测试连接: $current_service ($current_ip) -> $target_service ($target_ip)"
+        sudo docker exec $current_service ping -c 2 $target_ip || log_warning "ping失败: $current_service -> $target_service"
     done
 }
 
@@ -258,13 +284,45 @@ cleanup_network() {
     log_info "清理网络资源..."
     
     # 停止容器
-    sudo docker compose -f docker-compose.yml down 2>/dev/null || true
+    sudo docker compose -f "$DOCKER_COMPOSE_FILE" down 2>/dev/null || true
     
-    # 清理网络设备 - 使用更安全的方式
+    # 清理网络设备 - 清理所有br-beacon和tap-beacon设备
+    log_info "清理beacon相关网络设备..."
+    local beacon_bridges=$(ip link show | grep -o "br-beacon-[0-9]*" | head -20)
+    local beacon_taps=$(ip link show | grep -o "tap-beacon-[0-9]*" | head -20)
+    
+    # 清理bridge设备
+    for bridge_name in $beacon_bridges; do
+        if ip link show $bridge_name >/dev/null 2>&1; then
+            log_info "清理bridge: $bridge_name"
+            # 删除bridge
+            sudo ip link del $bridge_name 2>/dev/null || true
+        fi
+    done
+    
+    # 清理tap设备
+    for tap_name in $beacon_taps; do
+        if ip link show $tap_name >/dev/null 2>&1; then
+            log_info "清理tap: $tap_name"
+            sudo ip link del $tap_name 2>/dev/null || true
+        fi
+    done
+    
+    # 清理veth设备
+    local beacon_veths=$(ip link show | grep -o "veth-beacon-[0-9]*-in" | head -20)
+    for veth_name in $beacon_veths; do
+        local base_name=$(echo $veth_name | sed 's/-in$//')
+        if ip link show $veth_name >/dev/null 2>&1; then
+            log_info "清理veth: $base_name"
+            sudo ip link del $veth_name 2>/dev/null || true
+        fi
+    done
+    
+    # 兼容旧的命名规范
     local max_nodes=50  # 最大清理50个节点
     for i in $(seq 1 $max_nodes); do
-        local bridge_name="${BRIDGE_PREFIX}-${i}"
-        local tap_name="${TAP_PREFIX}-${i}"
+        local bridge_name="br-node-${i}"
+        local tap_name="tap-node-${i}"
         
         # 检查设备是否存在，如果存在则清理
         if ip link show $bridge_name >/dev/null 2>&1; then
@@ -291,15 +349,25 @@ cleanup_network() {
     
     # 清理iptables规则
     log_info "清理iptables规则..."
-    # 删除所有与br-node相关的iptables规则
+    # 删除所有与br-beacon相关的iptables规则
     local rule_num=1
     while true; do
-        # 查找包含br-node的FORWARD规则
-        local rule_line=$(sudo iptables -L FORWARD -v -n --line-numbers | grep br-node | head -1 | awk '{print $1}')
+        # 查找包含br-beacon的FORWARD规则
+        local rule_line=$(sudo iptables -L FORWARD -v -n --line-numbers | grep br-beacon | head -1 | awk '{print $1}')
         if [ -z "$rule_line" ]; then
             break  # 没有找到更多规则
         fi
         log_info "删除iptables规则 #$rule_line"
+        sudo iptables -D FORWARD $rule_line 2>/dev/null || true
+    done
+    
+    # 兼容清理旧的br-node规则
+    while true; do
+        local rule_line=$(sudo iptables -L FORWARD -v -n --line-numbers | grep br-node | head -1 | awk '{print $1}')
+        if [ -z "$rule_line" ]; then
+            break
+        fi
+        log_info "删除旧的br-node iptables规则 #$rule_line"
         sudo iptables -D FORWARD $rule_line 2>/dev/null || true
     done
     
@@ -343,53 +411,59 @@ cleanup_iptables() {
 
 # 主函数
 main() {
-    # 设置节点数量
-    NODE_COUNT=${2:-2}  # 默认2个节点，可通过第二个参数指定
+    log_info "开始为beacon-chain节点创建NS-3网络环境..."
     
-    log_info "开始创建 $NODE_COUNT 个节点的网络环境..."
+    # 第一步：解析docker-compose文件
+    log_info "第一步：解析docker-compose文件..."
+    if ! parse_beacon_services; then
+        log_error "解析docker-compose文件失败"
+        exit 1
+    fi
     
-    # 检查参数
-    if [ "$NODE_COUNT" -lt 1 ] || [ "$NODE_COUNT" -gt 254 ]; then
-        log_error "节点数量必须在1-254之间"
+    local service_count=${#BEACON_SERVICES[@]}
+    if [ "$service_count" -eq 0 ]; then
+        log_error "未找到beacon-chain服务"
         exit 1
     fi
     
     # 清理可能存在的旧配置
     cleanup_network
     
-    # 第一步：启动容器（必须先启动容器才能获取PID）
-    log_info "第一步：启动Docker容器..."
+    # 第二步：启动容器（必须先启动容器才能获取PID）
+    log_info "第二步：启动Docker容器..."
     if ! start_containers; then
         log_error "容器启动失败"
         exit 1
     fi
     
-    # 第二步：创建网络设备（tap、bridge、iptables）
-    log_info "第二步：创建网络设备..."
-    for i in $(seq 1 $NODE_COUNT); do
-        create_tap_device $i
-        create_bridge $i
-        configure_iptables $i
+    # 第三步：创建网络设备（tap、bridge、iptables）
+    log_info "第三步：为beacon-chain服务创建网络设备..."
+    for service in "${BEACON_SERVICES[@]}"; do
+        create_tap_device "$service"
+        create_bridge "$service"
+        configure_iptables "$service"
     done
     
-    # 第三步：配置容器网络（需要容器PID）
-    log_info "第三步：配置容器网络..."
-    for i in $(seq 1 $NODE_COUNT); do
-        if ! setup_network_namespace "${CONTAINER_PREFIX}-${i}"; then
-            log_error "设置网络命名空间失败: ${CONTAINER_PREFIX}-${i}"
+    # 第四步：配置容器网络（需要容器PID）
+    log_info "第四步：配置beacon-chain容器网络..."
+    local index=1
+    for service in "${BEACON_SERVICES[@]}"; do
+        if ! setup_network_namespace "$service"; then
+            log_error "设置网络命名空间失败: $service"
             continue
         fi
         
-        if ! configure_container_network $i; then
-            log_error "配置容器网络失败: ${CONTAINER_PREFIX}-${i}"
+        if ! configure_container_network "$service" "$index"; then
+            log_error "配置容器网络失败: $service"
             continue
         fi
+        index=$((index + 1))
     done
     
-    # 第四步：连接tap到bridge
-    log_info "第四步：连接tap设备到bridge..."
-    for i in $(seq 1 $NODE_COUNT); do
-        connect_tap_to_bridge $i
+    # 第五步：连接tap到bridge
+    log_info "第五步：连接tap设备到bridge..."
+    for service in "${BEACON_SERVICES[@]}"; do
+        connect_tap_to_bridge "$service"
     done
     
     # 显示状态
@@ -398,10 +472,14 @@ main() {
     # 测试连接
     test_network_connectivity
     
-    log_success "多节点网络环境创建完成！"
+    log_success "beacon-chain网络环境创建完成！"
+    log_info "beacon-chain服务及其IP地址:"
+    for i in $(seq 0 $((service_count - 1))); do
+        echo "  ${BEACON_SERVICES[$i]} -> ${BEACON_IPS[$i]}"
+    done
     log_info "使用以下命令进入容器:"
-    for i in $(seq 1 $NODE_COUNT); do
-        echo "  sudo docker exec -it ${CONTAINER_PREFIX}-${i} bash"
+    for service in "${BEACON_SERVICES[@]}"; do
+        echo "  sudo docker exec -it $service bash"
     done
 }
 

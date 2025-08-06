@@ -8,20 +8,21 @@ services:
       - generate-genesis
       - --fork=capella
       - --num-validators=64
+      # - --nenesis-time-delay=15
       - --output-ssz=/consensus/genesis.ssz
       - --chain-config-file=/config/config.yml
       - --geth-genesis-json-in=/execution/genesis.json
       - --geth-genesis-json-out=/execution/genesis.json
     volumes:
-      - ./consensus:/consensus
       - ./config:/config
+      - ./consensus:/consensus
       - ./execution:/execution
 
   # Removes the database of the go-ethereum execution client to ensure we start from a clean state.
   # (geth has a `removedb` option, but it asks for a keyboard confirmation, so we use this instead)
   geth-remove-db:
     image: "alpine:3.19.0"
-    command: rm -rf /execution/geth
+    command: rm -rf /execution/gethdata
     volumes:
       - ./execution:/execution
 
@@ -41,6 +42,7 @@ services:
   # APIs to allow for proof-of-stake consensus via Prysm.
   geth:
     image: "ethereum/client-go:release-1.14"
+    container_name: geth
     command:
       - --http
       - --http.api=eth,net,web3 
@@ -59,17 +61,11 @@ services:
       - --password=/execution/geth_password.txt
       - --nodiscover
       - --syncmode=full
-    ports:
-      - 8551:8551 # authrpc Engine API, for beacon-node
-      - 8545:8545 # HTTP RPC API
-      - 8546:8546 # WebSocket RPC API
     depends_on:
       geth-genesis:
         condition: service_completed_successfully
     volumes:
       - ./execution:/execution
-    # networks:
-    #   - p2p_testnet
 
   # Runs a Prysm beacon chain from a specified genesis state created in the previous step
   # and connects to go-ethereum in the same network as the execution client.
@@ -77,6 +73,7 @@ services:
   # proposed via the validators attached to the beacon node.
   beacon-chain-1:
     image: "gcr.io/prysmaticlabs/prysm/beacon-chain:latest"
+    container_name: beacon-chain-1
     command:
       - --datadir=/consensus/beacondata1
       - --min-sync-peers=0
@@ -97,9 +94,9 @@ services:
       - --force-clear-db
       - --p2p-static-id=true
       - --p2p-max-peers=70
-      - --peer=beacon-chain-2:13000
-      - --peer=beacon-chain-3:13000
-      - --peer=beacon-chain-4:13000
+      - --peer=/ip4/172.18.0.6/tcp/13000/p2p/16Uiu2HAm3unVJ3rANXDqZEokanS2hPxUzpT2AVpBkCRbwuK68349
+      # - --peer=beacon-chain-3:13000
+      # - --peer=beacon-chain-4:13000
     depends_on:
       geth:
         condition: service_started
@@ -112,6 +109,7 @@ services:
 
   beacon-chain-2:
     image: "gcr.io/prysmaticlabs/prysm/beacon-chain:latest"
+    container_name: beacon-chain-2
     command:
       - --datadir=/consensus/beacondata2
       - --min-sync-peers=0
@@ -132,9 +130,9 @@ services:
       - --force-clear-db
       - --p2p-static-id=true
       - --p2p-max-peers=70
-      - --peer=beacon-chain-1:13000
-      - --peer=beacon-chain-3:13000
-      - --peer=beacon-chain-4:13000
+      - --peer=/ip4/172.18.0.3/tcp/13000/p2p/16Uiu2HAmBYguDqJV8iQkscUpoMpVaFDygtaAyxdSJJ9KhJXVR9Ye
+      # - --peer=beacon-chain-3:13000
+      # - --peer=beacon-chain-4:13000
     depends_on:
       geth:
         condition: service_started
@@ -147,6 +145,7 @@ services:
 
   beacon-chain-3:
     image: "gcr.io/prysmaticlabs/prysm/beacon-chain:latest"
+    container_name: beacon-chain-3
     command:
       - --datadir=/consensus/beacondata3
       - --min-sync-peers=0
@@ -183,6 +182,7 @@ services:
 
   beacon-chain-4:
     image: "gcr.io/prysmaticlabs/prysm/beacon-chain:latest"
+    container_name: beacon-chain-4
     command:
       - --datadir=/consensus/beacondata4
       - --min-sync-peers=0
@@ -221,6 +221,7 @@ services:
   # The validator keys present in the beacon chain genesis state generated a few steps above.
   validator-1:
     image: "gcr.io/prysmaticlabs/prysm/validator:latest"
+    container_name: validator-1
     command:
       - --beacon-rpc-provider=beacon-chain-1:4000
       - --datadir=/consensus/validatordata1
@@ -238,6 +239,7 @@ services:
 
   validator-2:
     image: "gcr.io/prysmaticlabs/prysm/validator:latest"
+    container_name: validator-2
     command:
       - --beacon-rpc-provider=beacon-chain-2:4000
       - --datadir=/consensus/validatordata2
@@ -255,6 +257,7 @@ services:
 
   validator-3:
     image: "gcr.io/prysmaticlabs/prysm/validator:latest"
+    container_name: validator-3
     command:
       - --beacon-rpc-provider=beacon-chain-3:4000
       - --datadir=/consensus/validatordata3
@@ -272,6 +275,7 @@ services:
 
   validator-4:
     image: "gcr.io/prysmaticlabs/prysm/validator:latest"
+    container_name: validator-4
     command:
       - --beacon-rpc-provider=beacon-chain-4:4000
       - --datadir=/consensus/validatordata4
@@ -286,3 +290,10 @@ services:
     volumes:
       - ./consensus:/consensus
       - ./config:/config
+
+networks:
+  eth-net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.18.0.0/16
