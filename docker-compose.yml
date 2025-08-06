@@ -1,4 +1,33 @@
+# =============================================================================
+# 以太坊PoS测试网 Docker Compose 配置
+# 
+# 功能：
+# - 启动以太坊执行层客户端 (geth)
+# - 启动共识层客户端 (beacon-chain)
+# - 启动验证者客户端 (validator)
+# - 配置网络和依赖关系
+# 
+# 网络拓扑：
+# - 4个beacon-chain节点
+# - 4个validator节点
+# - 1个geth执行层节点
+# 
+# 端口映射：
+# - Geth RPC: 8545
+# - Beacon-1: 7777
+# - Beacon-2: 7778
+# - Beacon-3: 7779
+# - Beacon-4: 7780
+# =============================================================================
+
+
 services:
+  # =============================================================================
+  # 数据收集服务
+  # =============================================================================
+  
+  # Bootstrap节点信息收集器
+  # 从beacon-chain-1收集ENR信息供其他节点使用
   bootstrap-collector:
     image: "alpine:3.19.0"
     container_name: bootstrap-collector
@@ -13,14 +42,16 @@ services:
         condition: service_started
       beacon-chain-1:
         condition: service_started
-      validator-1:
-        condition: service_started
     volumes:
       - ./scripts:/scripts
       - ./share:/share
 
-  # Creates a genesis state for the beacon chain using a YAML configuration file and
-  # a deterministic set of 64 validators.
+  # =============================================================================
+  # 区块链初始化服务
+  # =============================================================================
+  
+  # 创建beacon-chain创世状态
+  # 使用Prysm工具生成包含64个验证者的创世状态
   create-beacon-chain-genesis:
     image: "gcr.io/prysmaticlabs/prysm/cmd/prysmctl:latest"
     container_name: prysmctl-genesis
@@ -29,7 +60,6 @@ services:
       - generate-genesis
       - --fork=capella
       - --num-validators=64
-      # - --nenesis-time-delay=15
       - --output-ssz=/consensus/genesis.ssz
       - --chain-config-file=/config/config.yml
       - --geth-genesis-json-in=/execution/genesis.json
@@ -39,8 +69,8 @@ services:
       - ./consensus:/consensus
       - ./execution:/execution
 
-  # Removes the database of the go-ethereum execution client to ensure we start from a clean state.
-  # (geth has a `removedb` option, but it asks for a keyboard confirmation, so we use this instead)
+  # 清理geth数据库
+  # 确保从干净状态启动
   geth-remove-db:
     image: "alpine:3.19.0"
     container_name: geth-remove-db
@@ -48,7 +78,8 @@ services:
     volumes:
       - ./execution:/execution
 
-  # Sets up the genesis configuration for the go-ethereum client from a JSON file.
+  # 初始化geth创世配置
+  # 使用生成的创世文件初始化geth数据库
   geth-genesis:
     image: "ethereum/client-go:release-1.14"
     container_name: geth-genesis
@@ -61,8 +92,12 @@ services:
       geth-remove-db:
         condition: service_completed_successfully
 
-  # Runs the go-ethereum execution client with the specified, unlocked account and necessary
-  # APIs to allow for proof-of-stake consensus via Prysm.
+  # =============================================================================
+  # 执行层服务
+  # =============================================================================
+  
+  # Go-Ethereum执行层客户端
+  # 提供执行层功能，支持PoS共识
   geth:
     image: "ethereum/client-go:release-1.14"
     container_name: geth
@@ -70,33 +105,121 @@ services:
     volumes:
       - ./scripts:/scripts
       - ./execution:/execution
+    ports:
+      - 8545:8545  # JSON-RPC
+      - 8546:8546  # WebSocket
     depends_on:
       geth-genesis:
         condition: service_completed_successfully
 
-  # Runs a Prysm beacon chain from a specified genesis state created in the previous step
-  # and connects to go-ethereum in the same network as the execution client.
-  # The account used in go-ethereum is set as the suggested fee recipient for transactions
-  # proposed via the validators attached to the beacon node.
+  # =============================================================================
+  # 共识层服务 - Beacon Chain节点
+  # =============================================================================
+  
+  # Beacon Chain节点 1 (Bootstrap节点)
+  # 作为其他节点的发现和同步源
   beacon-chain-1:
     image: "gcr.io/prysmaticlabs/prysm/beacon-chain:latest"
     container_name: beacon-chain-1
     entrypoint: ["/scripts/beacon-chain-1-entrypoint.sh"]
+    environment:
+      - NS3_INTEGRATION=${NS3_INTEGRATION:-false}
+      - CHAIN_ID=${CHAIN_ID:-32382}
     volumes:
       - ./scripts:/scripts
       - ./consensus:/consensus
       - ./config:/config
       - ./execution:/execution
+      - ./share:/share
     depends_on:
       geth:
         condition: service_started
       create-beacon-chain-genesis:
         condition: service_completed_successfully
     ports:
-      - 7777:7777
+      - 7777:7777  # Beacon API
 
-  # We run a validator client with 64, deterministically-generated keys that match
-  # The validator keys present in the beacon chain genesis state generated a few steps above.
+  # Beacon Chain节点 2
+  # 连接到beacon-chain-1作为bootstrap节点
+  beacon-chain-2:
+    image: "gcr.io/prysmaticlabs/prysm/beacon-chain:latest"
+    container_name: beacon-chain-2
+    entrypoint: ["/scripts/beacon-chain-2-entrypoint.sh"]
+    environment:
+      - NS3_INTEGRATION=${NS3_INTEGRATION:-false}
+      - CHAIN_ID=${CHAIN_ID:-32382}
+    ports:
+      - 7778:7777  # Beacon API
+    volumes:
+      - ./scripts:/scripts
+      - ./consensus:/consensus
+      - ./config:/config
+      - ./execution:/execution
+      - ./share:/share
+    depends_on:
+      geth:
+        condition: service_started
+      create-beacon-chain-genesis:
+        condition: service_completed_successfully
+      bootstrap-collector:
+        condition: service_completed_successfully
+
+  # Beacon Chain节点 3
+  # 连接到beacon-chain-1作为bootstrap节点
+  beacon-chain-3:
+    image: "gcr.io/prysmaticlabs/prysm/beacon-chain:latest"
+    container_name: beacon-chain-3
+    entrypoint: ["/scripts/beacon-chain-3-entrypoint.sh"]
+    environment:
+      - NS3_INTEGRATION=${NS3_INTEGRATION:-false}
+      - CHAIN_ID=${CHAIN_ID:-32382}
+    ports:
+      - 7779:7777  # Beacon API
+    volumes:
+      - ./scripts:/scripts
+      - ./consensus:/consensus
+      - ./config:/config
+      - ./execution:/execution
+      - ./share:/share
+    depends_on:
+      geth:
+        condition: service_started
+      create-beacon-chain-genesis:
+        condition: service_completed_successfully
+      bootstrap-collector:
+        condition: service_completed_successfully
+
+  # Beacon Chain节点 4
+  # 连接到beacon-chain-1作为bootstrap节点
+  beacon-chain-4:
+    image: "gcr.io/prysmaticlabs/prysm/beacon-chain:latest"
+    container_name: beacon-chain-4
+    entrypoint: ["/scripts/beacon-chain-4-entrypoint.sh"]
+    environment:
+      - NS3_INTEGRATION=${NS3_INTEGRATION:-false}
+      - CHAIN_ID=${CHAIN_ID:-32382}
+    ports:
+      - 7780:7777  # Beacon API
+    volumes:
+      - ./scripts:/scripts
+      - ./consensus:/consensus
+      - ./config:/config
+      - ./execution:/execution
+      - ./share:/share
+    depends_on:
+      geth:
+        condition: service_started
+      create-beacon-chain-genesis:
+        condition: service_completed_successfully
+      bootstrap-collector:
+        condition: service_completed_successfully
+
+  # =============================================================================
+  # 验证者服务
+  # =============================================================================
+  
+  # 验证者客户端 1
+  # 连接到beacon-chain-1，管理验证者密钥和职责
   validator-1:
     image: "gcr.io/prysmaticlabs/prysm/validator:latest"
     container_name: validator-1
@@ -109,61 +232,8 @@ services:
       beacon-chain-1:
         condition: service_started
 
-  # Runs other nodes according to node-1
-  beacon-chain-2:
-    image: "gcr.io/prysmaticlabs/prysm/beacon-chain:latest"
-    container_name: beacon-chain-2
-    entrypoint: ["/scripts/beacon-chain-2-entrypoint.sh"]
-    volumes:
-      - ./scripts:/scripts
-      - ./consensus:/consensus
-      - ./config:/config
-      - ./execution:/execution
-      - ./share:/share
-    depends_on:
-      geth:
-        condition: service_started
-      create-beacon-chain-genesis:
-        condition: service_completed_successfully
-      bootstrap-collector:
-        condition: service_completed_successfully
-
-  beacon-chain-3:
-    image: "gcr.io/prysmaticlabs/prysm/beacon-chain:latest"
-    container_name: beacon-chain-3
-    entrypoint: ["/scripts/beacon-chain-3-entrypoint.sh"]
-    volumes:
-      - ./scripts:/scripts
-      - ./consensus:/consensus
-      - ./config:/config
-      - ./execution:/execution
-      - ./share:/share
-    depends_on:
-      geth:
-        condition: service_started
-      create-beacon-chain-genesis:
-        condition: service_completed_successfully
-      bootstrap-collector:
-        condition: service_completed_successfully
-
-  beacon-chain-4:
-    image: "gcr.io/prysmaticlabs/prysm/beacon-chain:latest"
-    container_name: beacon-chain-4
-    entrypoint: ["/scripts/beacon-chain-4-entrypoint.sh"]
-    volumes:
-      - ./scripts:/scripts
-      - ./consensus:/consensus
-      - ./config:/config
-      - ./execution:/execution
-      - ./share:/share
-    depends_on:
-      geth:
-        condition: service_started
-      create-beacon-chain-genesis:
-        condition: service_completed_successfully
-      bootstrap-collector:
-        condition: service_completed_successfully
-
+  # 验证者客户端 2
+  # 连接到beacon-chain-2
   validator-2:
     image: "gcr.io/prysmaticlabs/prysm/validator:latest"
     container_name: validator-2
@@ -176,6 +246,8 @@ services:
       beacon-chain-2:
         condition: service_started
 
+  # 验证者客户端 3
+  # 连接到beacon-chain-3
   validator-3:
     image: "gcr.io/prysmaticlabs/prysm/validator:latest"
     container_name: validator-3
@@ -188,6 +260,8 @@ services:
       beacon-chain-3:
         condition: service_started
 
+  # 验证者客户端 4
+  # 连接到beacon-chain-4
   validator-4:
     image: "gcr.io/prysmaticlabs/prysm/validator:latest"
     container_name: validator-4
