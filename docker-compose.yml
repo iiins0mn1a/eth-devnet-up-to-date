@@ -165,6 +165,8 @@ services:
       - ./config:/config
       - ./execution:/execution
       - ./share:/share
+    ports:
+      - 7778:7777
     depends_on:
       geth:
         condition: service_started
@@ -194,6 +196,8 @@ services:
       - ./config:/config
       - ./execution:/execution
       - ./share:/share
+    ports:
+      - 7779:7777
     depends_on:
       geth:
         condition: service_started
@@ -223,6 +227,8 @@ services:
       - ./config:/config
       - ./execution:/execution
       - ./share:/share
+    ports:
+      - 7780:7777
     depends_on:
       geth:
         condition: service_started
@@ -318,6 +324,36 @@ services:
       - INTEROP_NUM_VALIDATORS=8
       - INTEROP_START_INDEX=56
     # no host ports exposed (Prometheus scrapes via docker network)
+
+  # =============================================================================
+  # 区块树可视化服务
+  # =============================================================================
+  
+  # 区块树可视化器
+  # 从beacon节点收集fork_choice数据，提供实时区块树可视化
+  block-tree-visualizer:
+    build: ./block-tree-visualizer
+    container_name: block-tree-visualizer
+    ports:
+      - "8888:8000"  # 区块树可视化Web界面
+    environment:
+      - BEACON_ENDPOINTS=http://beacon-chain-1:7777,http://beacon-chain-2:7777,http://beacon-chain-3:7777,http://beacon-chain-4:7777
+    depends_on:
+      beacon-chain-1:
+        condition: service_started
+      beacon-chain-2:
+        condition: service_started
+      beacon-chain-3:
+        condition: service_started
+      beacon-chain-4:
+        condition: service_started
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
 
   # =============================================================================
   # 监控服务：Prometheus + Grafana

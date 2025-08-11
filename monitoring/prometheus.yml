@@ -24,3 +24,9 @@ scrape_configs:
           - "validator-3:8080"
           - "validator-4:8080"
 
+  - job_name: block-tree-visualizer
+    metrics_path: /health
+    static_configs:
+      - targets:
+          - "block-tree-visualizer:8000"
+

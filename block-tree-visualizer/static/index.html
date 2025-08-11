@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>以太坊测试网区块树可视化</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .header {
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .header h1 {
+            text-align: center;
+            font-size: 2rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .status-bar {
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .status-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 10px 15px;
+            border-radius: 8px;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            min-width: 120px;
+            text-align: center;
+        }
+
+        .status-item .label {
+            font-size: 0.8rem;
+            opacity: 0.7;
+            margin-bottom: 5px;
+        }
+
+        .status-item .value {
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+
+        .main-content {
+            display: flex;
+            height: calc(100vh - 140px);
+        }
+
+        .sidebar {
+            width: 300px;
+            background: rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(10px);
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .node-list {
+            max-height: 100%;
+        }
+
+        .node-item {
+            background: rgba(255, 255, 255, 0.1);
+            margin-bottom: 10px;
+            padding: 12px;
+            border-radius: 8px;
+            border-left: 4px solid #4CAF50;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .node-item:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateX(5px);
+        }
+
+        .node-item.head {
+            border-left-color: #FF6B6B;
+            box-shadow: 0 0 10px rgba(255, 107, 107, 0.3);
+        }
+
+        .node-item.finalized {
+            border-left-color: #4ECDC4;
+        }
+
+        .node-slot {
+            font-weight: bold;
+            font-size: 1.1rem;
+            margin-bottom: 5px;
+        }
+
+        .node-hash {
+            font-family: monospace;
+            font-size: 0.8rem;
+            opacity: 0.7;
+            word-break: break-all;
+        }
+
+        .node-details {
+            margin-top: 8px;
+            font-size: 0.8rem;
+        }
+
+        .visualization-container {
+            flex: 1;
+            position: relative;
+            background: rgba(0, 0, 0, 0.1);
+        }
+
+        #block-tree-svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        .connection-status {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            padding: 8px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            backdrop-filter: blur(5px);
+        }
+
+        .connection-status.connected {
+            background: rgba(76, 175, 80, 0.8);
+        }
+
+        .connection-status.disconnected {
+            background: rgba(244, 67, 54, 0.8);
+        }
+
+        .legend {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+        }
+
+        .legend-color {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+
+        /* 节点样式 */
+        .node circle {
+            stroke-width: 2px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .node:hover circle {
+            stroke-width: 3px;
+            r: 12;
+        }
+
+        .node text {
+            font-family: 'Segoe UI', sans-serif;
+            font-size: 11px;
+            fill: white;
+            text-anchor: middle;
+            pointer-events: none;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
+        }
+
+        .link {
+            stroke: rgba(255, 255, 255, 0.6);
+            stroke-width: 2px;
+            fill: none;
+            marker-end: url(#arrowhead);
+        }
+
+        .link.finalized {
+            stroke: #4ECDC4;
+            stroke-width: 3px;
+        }
+
+        .tooltip {
+            position: absolute;
+            background: rgba(0, 0, 0, 0.9);
+            color: white;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            pointer-events: none;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            max-width: 300px;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 250px;
+            }
+            
+            .header h1 {
+                font-size: 1.5rem;
+            }
+            
+            .status-bar {
+                gap: 10px;
+            }
+            
+            .status-item {
+                min-width: 100px;
+                padding: 8px 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🌐 以太坊测试网区块树可视化</h1>
+        <div class="status-bar">
+            <div class="status-item">
+                <div class="label">连接状态</div>
+                <div class="value" id="connection-status">连接中...</div>
+            </div>
+            <div class="status-item">
+                <div class="label">当前头部槽</div>
+                <div class="value" id="head-slot">-</div>
+            </div>
+            <div class="status-item">
+                <div class="label">最终化Epoch</div>
+                <div class="value" id="finalized-epoch">-</div>
+            </div>
+            <div class="status-item">
+                <div class="label">活跃节点</div>
+                <div class="value" id="active-nodes">0</div>
+            </div>
+            <div class="status-item">
+                <div class="label">最后更新</div>
+                <div class="value" id="last-update">-</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="sidebar">
+            <h3 style="margin-bottom: 15px;">📋 区块节点列表</h3>
+            <div class="node-list" id="node-list"></div>
+        </div>
+
+        <div class="visualization-container">
+            <div class="connection-status disconnected" id="ws-status">未连接</div>
+            
+            <svg id="block-tree-svg"></svg>
+
+            <div class="legend">
+                <h4 style="margin-bottom: 10px;">图例</h4>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #FF6B6B;"></div>
+                    <span>当前头部区块</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #4ECDC4;"></div>
+                    <span>已最终化区块</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #FFE66D;"></div>
+                    <span>已确认区块</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #A8E6CF;"></div>
+                    <span>普通区块</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="tooltip" id="tooltip" style="display: none;"></div>
+
+    <script src="block-tree.js"></script>
+</body>
+</html>
