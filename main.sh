@@ -143,18 +143,18 @@ wait_for_service_ready() {
                 log_success "服务已就绪: $service_endpoint"
                 return 0
             fi
-        elif [ "$service_type" = "prometheus" ]; then
-            # Prometheus readiness
-            if curl -sS -m 2 --connect-timeout 1 "http://$service_endpoint" | grep -iq "ok\|ready"; then
-                log_success "服务已就绪: $service_endpoint"
-                return 0
-            fi
-        elif [ "$service_type" = "grafana" ]; then
-            # Grafana health
-            if curl -sS -m 2 --connect-timeout 1 "http://$service_endpoint" | grep -q '"database":"ok"'; then
-                log_success "服务已就绪: $service_endpoint"
-                return 0
-            fi
+        # elif [ "$service_type" = "prometheus" ]; then
+        #     # Prometheus readiness
+        #     if curl -sS -m 2 --connect-timeout 1 "http://$service_endpoint" | grep -iq "ok\|ready"; then
+        #         log_success "服务已就绪: $service_endpoint"
+        #         return 0
+        #     fi
+        # elif [ "$service_type" = "grafana" ]; then
+        #     # Grafana health
+        #     if curl -sS -m 2 --connect-timeout 1 "http://$service_endpoint" | grep -q '"database":"ok"'; then
+        #         log_success "服务已就绪: $service_endpoint"
+        #         return 0
+        #     fi
         else
             # 简单的 TCP 连接检测
             if curl -sS -m 2 --connect-timeout 1 "$service_endpoint" >/dev/null 2>&1; then

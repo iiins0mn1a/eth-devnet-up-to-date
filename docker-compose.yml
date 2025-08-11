@@ -107,9 +107,6 @@ services:
       - ./execution:/execution
     ports:
       - 8545:8545  # JSON-RPC
-      - 8546:8546  # WebSocket
-      - 6060:6060  # Prometheus metrics
-      - 6061:6061  # pprof
     depends_on:
       geth-genesis:
         condition: service_completed_successfully
@@ -123,10 +120,16 @@ services:
   beacon-chain-1:
     image: "gcr.io/prysmaticlabs/prysm/beacon-chain:latest"
     container_name: beacon-chain-1
-    entrypoint: ["/scripts/beacon-chain-1-entrypoint.sh"]
+    entrypoint: ["/scripts/beacon-entrypoint.sh"]
     environment:
       - NS3_INTEGRATION=${NS3_INTEGRATION:-false}
       - CHAIN_ID=${CHAIN_ID:-32382}
+      - NODE_ID=1
+      - NODE_IP=10.0.0.1
+      - API_PORT=7777
+      - DATA_DIR=/consensus/beacondata1
+      - CONFIG_FILE=/config/config-1.yml
+      # - LOG_LEVEL=debug
     volumes:
       - ./scripts:/scripts
       - ./consensus:/consensus
@@ -139,21 +142,23 @@ services:
       create-beacon-chain-genesis:
         condition: service_completed_successfully
     ports:
-      - 7777:7777  # Beacon API
-      - 8081:8080  # Prometheus metrics
+      - 7777:7777  # Beacon API (host health check)
 
   # Beacon Chain节点 2
   # 连接到beacon-chain-1作为bootstrap节点
   beacon-chain-2:
     image: "gcr.io/prysmaticlabs/prysm/beacon-chain:latest"
     container_name: beacon-chain-2
-    entrypoint: ["/scripts/beacon-chain-2-entrypoint.sh"]
+    entrypoint: ["/scripts/beacon-entrypoint.sh"]
     environment:
       - NS3_INTEGRATION=${NS3_INTEGRATION:-false}
       - CHAIN_ID=${CHAIN_ID:-32382}
-    ports:
-      - 7778:7777  # Beacon API
-      - 8082:8080  # Prometheus metrics
+      - NODE_ID=2
+      - NODE_IP=10.0.0.2
+      - API_PORT=7777
+      - DATA_DIR=/consensus/beacondata2
+      - CONFIG_FILE=/config/config-2.yml
+    # no host ports exposed (Prometheus scrapes via docker network)
     volumes:
       - ./scripts:/scripts
       - ./consensus:/consensus
@@ -173,13 +178,16 @@ services:
   beacon-chain-3:
     image: "gcr.io/prysmaticlabs/prysm/beacon-chain:latest"
     container_name: beacon-chain-3
-    entrypoint: ["/scripts/beacon-chain-3-entrypoint.sh"]
+    entrypoint: ["/scripts/beacon-entrypoint.sh"]
     environment:
       - NS3_INTEGRATION=${NS3_INTEGRATION:-false}
       - CHAIN_ID=${CHAIN_ID:-32382}
-    ports:
-      - 7779:7777  # Beacon API
-      - 8083:8080  # Prometheus metrics
+      - NODE_ID=3
+      - NODE_IP=10.0.0.3
+      - API_PORT=7777
+      - DATA_DIR=/consensus/beacondata3
+      - CONFIG_FILE=/config/config-3.yml
+    # no host ports exposed (Prometheus scrapes via docker network)
     volumes:
       - ./scripts:/scripts
       - ./consensus:/consensus
@@ -199,13 +207,16 @@ services:
   beacon-chain-4:
     image: "gcr.io/prysmaticlabs/prysm/beacon-chain:latest"
     container_name: beacon-chain-4
-    entrypoint: ["/scripts/beacon-chain-4-entrypoint.sh"]
+    entrypoint: ["/scripts/beacon-entrypoint.sh"]
     environment:
       - NS3_INTEGRATION=${NS3_INTEGRATION:-false}
       - CHAIN_ID=${CHAIN_ID:-32382}
-    ports:
-      - 7780:7777  # Beacon API
-      - 8084:8080  # Prometheus metrics
+      - NODE_ID=4
+      - NODE_IP=10.0.0.4
+      - API_PORT=7777
+      - DATA_DIR=/consensus/beacondata4
+      - CONFIG_FILE=/config/config-4.yml
+    # no host ports exposed (Prometheus scrapes via docker network)
     volumes:
       - ./scripts:/scripts
       - ./consensus:/consensus
@@ -229,7 +240,7 @@ services:
   validator-1:
     image: "gcr.io/prysmaticlabs/prysm/validator:latest"
     container_name: validator-1
-    entrypoint: ["/scripts/validator-1-entrypoint.sh"]
+    entrypoint: ["/scripts/validator-entrypoint.sh"]
     volumes:
       - ./scripts:/scripts
       - ./consensus:/consensus
@@ -237,15 +248,20 @@ services:
     depends_on:
       beacon-chain-1:
         condition: service_started
-    ports:
-      - 8181:8080  # Prometheus metrics
+    environment:
+      - BEACON_RPC_PROVIDER=beacon-chain-1:4000
+      - DATA_DIR=/consensus/validatordata1
+      - CHAIN_CONFIG_FILE=/config/config-1.yml
+      - INTEROP_NUM_VALIDATORS=32
+      - INTEROP_START_INDEX=0
+    # no host ports exposed (Prometheus scrapes via docker network)
 
   # 验证者客户端 2
   # 连接到beacon-chain-2
   validator-2:
     image: "gcr.io/prysmaticlabs/prysm/validator:latest"
     container_name: validator-2
-    entrypoint: ["/scripts/validator-2-entrypoint.sh"]
+    entrypoint: ["/scripts/validator-entrypoint.sh"]
     volumes:
       - ./scripts:/scripts
       - ./consensus:/consensus
@@ -253,15 +269,20 @@ services:
     depends_on:
       beacon-chain-2:
         condition: service_started
-    ports:
-      - 8182:8080  # Prometheus metrics
+    environment:
+      - BEACON_RPC_PROVIDER=beacon-chain-2:4000
+      - DATA_DIR=/consensus/validatordata2
+      - CHAIN_CONFIG_FILE=/config/config-2.yml
+      - INTEROP_NUM_VALIDATORS=16
+      - INTEROP_START_INDEX=32
+    # no host ports exposed (Prometheus scrapes via docker network)
 
   # 验证者客户端 3
   # 连接到beacon-chain-3
   validator-3:
     image: "gcr.io/prysmaticlabs/prysm/validator:latest"
     container_name: validator-3
-    entrypoint: ["/scripts/validator-3-entrypoint.sh"]
+    entrypoint: ["/scripts/validator-entrypoint.sh"]
     volumes:
       - ./scripts:/scripts
       - ./consensus:/consensus
@@ -269,15 +290,20 @@ services:
     depends_on:
       beacon-chain-3:
         condition: service_started
-    ports:
-      - 8183:8080  # Prometheus metrics
+    environment:
+      - BEACON_RPC_PROVIDER=beacon-chain-3:4000
+      - DATA_DIR=/consensus/validatordata3
+      - CHAIN_CONFIG_FILE=/config/config-3.yml
+      - INTEROP_NUM_VALIDATORS=8
+      - INTEROP_START_INDEX=48
+    # no host ports exposed (Prometheus scrapes via docker network)
 
   # 验证者客户端 4
   # 连接到beacon-chain-4
   validator-4:
     image: "gcr.io/prysmaticlabs/prysm/validator:latest"
     container_name: validator-4
-    entrypoint: ["/scripts/validator-4-entrypoint.sh"]
+    entrypoint: ["/scripts/validator-entrypoint.sh"]
     volumes:
       - ./scripts:/scripts
       - ./consensus:/consensus
@@ -285,8 +311,13 @@ services:
     depends_on:
       beacon-chain-4:
         condition: service_started
-    ports:
-      - 8184:8080  # Prometheus metrics
+    environment:
+      - BEACON_RPC_PROVIDER=beacon-chain-4:4000
+      - DATA_DIR=/consensus/validatordata4
+      - CHAIN_CONFIG_FILE=/config/config-4.yml
+      - INTEROP_NUM_VALIDATORS=8
+      - INTEROP_START_INDEX=56
+    # no host ports exposed (Prometheus scrapes via docker network)
 
   # =============================================================================
   # 监控服务：Prometheus + Grafana
