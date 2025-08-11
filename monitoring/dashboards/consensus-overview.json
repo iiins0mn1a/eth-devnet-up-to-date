@@ -1,0 +1,78 @@
+{
+  "title": "Consensus Overview",
+  "schemaVersion": 38,
+  "panels": [
+    {
+      "type": "stat",
+      "title": "Finalized Epoch",
+      "targets": [
+        { "expr": "max(beacon_finalized_epoch)" }
+      ],
+      "gridPos": {"x": 0, "y": 0, "w": 6, "h": 4}
+    },
+    {
+      "type": "stat",
+      "title": "Head Slot",
+      "targets": [
+        { "expr": "max(beacon_head_slot)" }
+      ],
+      "gridPos": {"x": 6, "y": 0, "w": 6, "h": 4}
+    },
+    {
+      "type": "timeseries",
+      "title": "Participation Rate (prev epoch)",
+      "targets": [
+        { "refId": "A", "legendFormat": "target", "expr": "beacon_prev_epoch_target_gwei / beacon_prev_epoch_active_gwei" },
+        { "refId": "B", "legendFormat": "head",   "expr": "beacon_prev_epoch_head_gwei / beacon_prev_epoch_active_gwei" },
+        { "refId": "C", "legendFormat": "source", "expr": "beacon_prev_epoch_source_gwei / beacon_prev_epoch_active_gwei" }
+      ],
+      "gridPos": {"x": 0, "y": 4, "w": 12, "h": 7}
+    },
+    {
+      "type": "timeseries",
+      "title": "Fork Switches (Head Changes)",
+      "targets": [
+        { "expr": "sum(rate(doublylinkedtree_head_changed_count[5m]))" }
+      ],
+      "gridPos": {"x": 0, "y": 11, "w": 12, "h": 7}
+    },
+    {
+      "type": "timeseries",
+      "title": "Attestation Inclusion Delay (slots)",
+      "targets": [
+        { "refId": "P50", "legendFormat": "p50",  "expr": "histogram_quantile(0.5, sum by (le) (rate(attestation_inclusion_delay_slots_bucket[5m])))" },
+        { "refId": "P95", "legendFormat": "p95",  "expr": "histogram_quantile(0.95, sum by (le) (rate(attestation_inclusion_delay_slots_bucket[5m])))" }
+      ],
+      "gridPos": {"x": 0, "y": 18, "w": 12, "h": 7}
+    },
+    {
+      "type": "timeseries",
+      "title": "Block Propagation Delay (ms)",
+      "targets": [
+        { "refId": "P50", "legendFormat": "p50",  "expr": "histogram_quantile(0.5, sum by (le) (rate(block_arrival_latency_milliseconds_bucket[5m])))" },
+        { "refId": "P95", "legendFormat": "p95",  "expr": "histogram_quantile(0.95, sum by (le) (rate(block_arrival_latency_milliseconds_bucket[5m])))" }
+      ],
+      "gridPos": {"x": 0, "y": 25, "w": 12, "h": 7}
+    },
+    {
+      "type": "timeseries",
+      "title": "Peers (Connected)",
+      "targets": [
+        { "expr": "max(connected_libp2p_peers)" }
+      ],
+      "gridPos": {"x": 0, "y": 32, "w": 12, "h": 7}
+    },
+    {
+      "type": "timeseries",
+      "title": "Geth: Process CPU%",
+      "targets": [
+        { "expr": "rate(process_cpu_seconds_total{job=\"geth\"}[1m]) * 100" }
+      ],
+      "gridPos": {"x": 0, "y": 39, "w": 12, "h": 7}
+    }
+  ],
+  "editable": true,
+  "time": {"from": "now-15m", "to": "now"},
+  "templating": {"list": []}
+}
+

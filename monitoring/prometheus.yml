@@ -1,0 +1,26 @@
+global:
+  scrape_interval: 5s
+  evaluation_interval: 5s
+
+scrape_configs:
+  - job_name: geth
+    metrics_path: /debug/metrics/prometheus
+    static_configs:
+      - targets: ["geth:6060"]
+
+  - job_name: prysm-beacon
+    static_configs:
+      - targets:
+          - "beacon-chain-1:8080"
+          - "beacon-chain-2:8080"
+          - "beacon-chain-3:8080"
+          - "beacon-chain-4:8080"
+
+  - job_name: prysm-validator
+    static_configs:
+      - targets:
+          - "validator-1:8080"
+          - "validator-2:8080"
+          - "validator-3:8080"
+          - "validator-4:8080"
+

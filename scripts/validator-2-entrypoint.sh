@@ -9,5 +9,7 @@ exec /validator \
   --interop-num-validators=16 \
   --interop-start-index=32 \
   --chain-config-file=/config/config-2.yml \
+  --monitoring-host=0.0.0.0 \
+  --monitoring-port=8080 \
   --force-clear-db \
   "$@" 

@@ -83,6 +83,44 @@ check_directory() {
     fi
 }
 
+# 检测是否存在残留数据/容器/信号
+has_dirty_state() {
+    local dirty=false
+
+    # 1) 运行中的相关容器
+    if docker compose ps -q | grep -q . 2>/dev/null; then
+        dirty=true
+    fi
+
+    # 2) 执行层/共识层数据目录
+    if [ -d ./execution/geth ] && [ "$(ls -A ./execution/geth 2>/dev/null || true)" ]; then
+        dirty=true
+    fi
+    if compgen -G "./consensus/beacondata*" > /dev/null || compgen -G "./consensus/validatordata*" > /dev/null; then
+        dirty=true
+    fi
+    # 3) 创世与信号文件
+    if [ -f ./consensus/genesis.ssz ]; then
+        dirty=true
+    fi
+    if [ -d ./share/signals ] && [ "$(ls -A ./share/signals 2>/dev/null || true)" ]; then
+        dirty=true
+    fi
+
+    $dirty && return 0 || return 1
+}
+
+# 预检：若存在残留则自动清理
+preflight_clean_if_needed() {
+    log_step "步骤0: 环境预检..."
+    if has_dirty_state; then
+        log_warning "检测到上次运行的残留（容器/数据/信号），将自动执行清理..."
+        clean_all
+    else
+        log_success "环境干净，无需清理"
+    fi
+}
+
 # 等待服务就绪
 wait_for_service_ready() {
     local service_endpoint=$1
@@ -95,19 +133,31 @@ wait_for_service_ready() {
     while [ $wait_count -lt $max_wait ]; do
         if [ "$service_type" = "geth" ]; then
             # geth JSON-RPC 检测
-            if echo '{"jsonrpc":"2.0","method":"eth_blockNumber","params":[],"id":1}' | curl -s -X POST -H "Content-Type: application/json" -d @- "$service_endpoint" | grep -q "jsonrpc"; then
+            if echo '{"jsonrpc":"2.0","method":"eth_blockNumber","params":[],"id":1}' | curl -sS -m 2 --connect-timeout 1 -X POST -H "Content-Type: application/json" -d @- "$service_endpoint" | grep -q "jsonrpc"; then
                 log_success "服务已就绪: $service_endpoint"
                 return 0
             fi
         elif [ "$service_type" = "beacon" ]; then
             # beacon-chain REST API 检测
-            if curl -s "http://$service_endpoint/eth/v1/node/health" | grep -q "200\|OK" || curl -s "http://$service_endpoint/eth/v1/node/identity" | grep -q "enr"; then
+            if curl -sS -m 2 --connect-timeout 1 "http://$service_endpoint/eth/v1/node/health" | grep -q "200\|OK" || curl -sS -m 2 --connect-timeout 1 "http://$service_endpoint/eth/v1/node/identity" | grep -q "enr"; then
+                log_success "服务已就绪: $service_endpoint"
+                return 0
+            fi
+        elif [ "$service_type" = "prometheus" ]; then
+            # Prometheus readiness
+            if curl -sS -m 2 --connect-timeout 1 "http://$service_endpoint" | grep -iq "ok\|ready"; then
+                log_success "服务已就绪: $service_endpoint"
+                return 0
+            fi
+        elif [ "$service_type" = "grafana" ]; then
+            # Grafana health
+            if curl -sS -m 2 --connect-timeout 1 "http://$service_endpoint" | grep -q '"database":"ok"'; then
                 log_success "服务已就绪: $service_endpoint"
                 return 0
             fi
         else
             # 简单的 TCP 连接检测
-            if curl -s --connect-timeout 2 "$service_endpoint" >/dev/null 2>&1; then
+            if curl -sS -m 2 --connect-timeout 1 "$service_endpoint" >/dev/null 2>&1; then
                 log_success "服务已就绪: $service_endpoint"
                 return 0
             fi
@@ -355,9 +405,19 @@ build_containers() {
     rm -rf "$SIGNAL_DIR"/*
     mkdir -p "$SIGNAL_DIR"
     
-    # 启动所有基础服务
-    log_info "启动所有基础服务（包括 geth）..."
-    docker compose up -d geth
+    # 启动基础服务：geth + 监控
+    log_info "启动 geth、prometheus、grafana..."
+    docker compose up -d geth prometheus grafana
+
+    # 等待 Prometheus/Grafana 就绪（非强制，但更稳健）
+    log_info "等待 Prometheus/Grafana 就绪..."
+    wait_for_service_ready "localhost:9090/-/ready" 60 "prometheus" || log_warning "Prometheus 就绪检测超时，继续..."
+    # Grafana 有时初始化较慢，改为宽限等待并兼容主页可达
+    if ! wait_for_service_ready "localhost:3000/api/health" 90 "grafana"; then
+        if ! wait_for_service_ready "localhost:3000/login" 30 "grafana"; then
+            log_warning "Grafana 就绪检测未通过，但将继续流程（稍后可手动刷新）"
+        fi
+    fi
     
     log_success "基础服务启动完成"
 }
@@ -493,6 +553,10 @@ show_network_status() {
     echo "  Beacon-2 API: localhost:7778"
     echo "  Beacon-3 API: localhost:7779"
     echo "  Beacon-4 API: localhost:7780"
+    echo "  Prometheus: localhost:9090"
+    echo "  Grafana:    localhost:3000"
+    echo "  Metrics:    geth:6060, beacon:8081..8084, validator:8181..8184"
+    echo "  pprof:      geth:6061"
     
     echo -e "\n${YELLOW}=== 信号文件状态 ===${NC}"
     ls -la "$SIGNAL_DIR" 2>/dev/null || echo "无信号文件"
@@ -588,6 +652,8 @@ main() {
         "")
             # 默认运行完整流程
             log_info "开始执行以太坊PoS开发网络设置..."
+            # 步骤0: 预检并清理残留
+            preflight_clean_if_needed
             
             # 步骤1: 使用docker-compose.yml构建容器
             build_containers

@@ -108,6 +108,8 @@ services:
     ports:
       - 8545:8545  # JSON-RPC
       - 8546:8546  # WebSocket
+      - 6060:6060  # Prometheus metrics
+      - 6061:6061  # pprof
     depends_on:
       geth-genesis:
         condition: service_completed_successfully
@@ -138,6 +140,7 @@ services:
         condition: service_completed_successfully
     ports:
       - 7777:7777  # Beacon API
+      - 8081:8080  # Prometheus metrics
 
   # Beacon Chain节点 2
   # 连接到beacon-chain-1作为bootstrap节点
@@ -150,6 +153,7 @@ services:
       - CHAIN_ID=${CHAIN_ID:-32382}
     ports:
       - 7778:7777  # Beacon API
+      - 8082:8080  # Prometheus metrics
     volumes:
       - ./scripts:/scripts
       - ./consensus:/consensus
@@ -175,6 +179,7 @@ services:
       - CHAIN_ID=${CHAIN_ID:-32382}
     ports:
       - 7779:7777  # Beacon API
+      - 8083:8080  # Prometheus metrics
     volumes:
       - ./scripts:/scripts
       - ./consensus:/consensus
@@ -200,6 +205,7 @@ services:
       - CHAIN_ID=${CHAIN_ID:-32382}
     ports:
       - 7780:7777  # Beacon API
+      - 8084:8080  # Prometheus metrics
     volumes:
       - ./scripts:/scripts
       - ./consensus:/consensus
@@ -231,6 +237,8 @@ services:
     depends_on:
       beacon-chain-1:
         condition: service_started
+    ports:
+      - 8181:8080  # Prometheus metrics
 
   # 验证者客户端 2
   # 连接到beacon-chain-2
@@ -245,6 +253,8 @@ services:
     depends_on:
       beacon-chain-2:
         condition: service_started
+    ports:
+      - 8182:8080  # Prometheus metrics
 
   # 验证者客户端 3
   # 连接到beacon-chain-3
@@ -259,6 +269,8 @@ services:
     depends_on:
       beacon-chain-3:
         condition: service_started
+    ports:
+      - 8183:8080  # Prometheus metrics
 
   # 验证者客户端 4
   # 连接到beacon-chain-4
@@ -273,3 +285,47 @@ services:
     depends_on:
       beacon-chain-4:
         condition: service_started
+    ports:
+      - 8184:8080  # Prometheus metrics
+
+  # =============================================================================
+  # 监控服务：Prometheus + Grafana
+  # =============================================================================
+
+  prometheus:
+    image: prom/prometheus:v2.53.0
+    container_name: prometheus
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.retention.time=15d
+      - --storage.tsdb.path=/prometheus
+      - --web.listen-address=:9090
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prom-data:/prometheus
+    ports:
+      - 9090:9090
+    depends_on:
+      geth:
+        condition: service_started
+
+  grafana:
+    image: grafana/grafana:10.4.3
+    container_name: grafana
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./monitoring/provisioning/datasources:/etc/grafana/provisioning/datasources:ro
+      - ./monitoring/provisioning/dashboards:/etc/grafana/provisioning/dashboards:ro
+      - ./monitoring/dashboards:/etc/grafana/provisioning/dashboards-json:ro
+    ports:
+      - 3000:3000
+    depends_on:
+      prometheus:
+        condition: service_started
+
+volumes:
+  prom-data:
+  grafana-data:
