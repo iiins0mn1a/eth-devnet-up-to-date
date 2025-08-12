@@ -1,0 +1,25 @@
+{
+    "data": [
+        {
+            "peer_id": "16Uiu2HAm7Jn5oabLaHZdvYJz2Gw2ZndawqYsnPGwr3DTqxXNZAPv",
+            "enr": "enr:-Mq4QHOW1iYVsuMQxanLBlUtnwt32paWRzQhltilBB40eIDjELpHtAaI4GoYCCv03ermINkXc3_51y044oAzT-RXYhSGAZic230Hh2F0dG5ldHOIAAAAwAAAAACEZXRoMpBa8xKTIAAAkwAdBAAAAAAAgmlkgnY0gmlwhAoAAAGEcXVpY4IyyIlzZWNwMjU2azGhArCIFC9DoEynOK3vUtMzkiU0zbU_gYw29A-PkZcYpC1FiHN5bmNuZXRzD4N0Y3CCMsiDdWRwgi7g",
+            "last_seen_p2p_address": "/ip4/10.0.0.1/udp/13000/quic-v1",
+            "state": "connected",
+            "direction": "outbound"
+        },
+        {
+            "peer_id": "16Uiu2HAm9h4k7gYXtWPCCKHoCrp7SxdDWbkH53RzaiUAXtAeG8Qj",
+            "enr": "enr:-Mq4QAMyk3PgNsk7ZPenSMsQHdJjQ-u3PL9Wwm3Oc5P7sBhOLJ1yWXKLzcrjdSOxfflv3-_9ZZR-cTnWobxo2ffctDeGAZic27g9h2F0dG5ldHOIAwAAAAAAAACEZXRoMpBa8xKTIAAAkwAdBAAAAAAAgmlkgnY0gmlwhAoAAAKEcXVpY4IyyIlzZWNwMjU2azGhAtP1EZLT6iAHzBCCVVOfaDR_-jt5CxmOlYaINPujSIxkiHN5bmNuZXRzD4N0Y3CCMsiDdWRwgi7g",
+            "last_seen_p2p_address": "/ip4/10.0.0.2/udp/13000/quic-v1",
+            "state": "connected",
+            "direction": "outbound"
+        },
+        {
+            "peer_id": "16Uiu2HAmTSEdGf7nPP2WSHshVg4bNAfC4jtpdPWTbtqQqrcLShrE",
+            "enr": "enr:-Mq4QM3aTx2D5GK9Wb3Es5dmCOvQeTiKcMeWKBe7EP0WwMehByNkmpU_tg0mhO5_HOWe3unNJ_VgXoulQJ3PmhGSk1aGAZic27jjh2F0dG5ldHOIAAAAAwAAAACEZXRoMpBa8xKTIAAAkwAdBAAAAAAAgmlkgnY0gmlwhAoAAAOEcXVpY4IyyIlzZWNwMjU2azGhA9ua5Q_gTzcsD0pCUTu5B4_G9BshKW-Z9c9mLBI8npD_iHN5bmNuZXRzD4N0Y3CCMsiDdWRwgi7g",
+            "last_seen_p2p_address": "/ip4/10.0.0.3/udp/13000/quic-v1",
+            "state": "connected",
+            "direction": "inbound"
+        }
+    ]
+}

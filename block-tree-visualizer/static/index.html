@@ -39,6 +39,109 @@
             justify-content: space-around;
             flex-wrap: wrap;
             gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .control-bar {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .control-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 10px 15px;
+            border-radius: 8px;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .control-group label {
+            font-size: 0.9rem;
+            font-weight: bold;
+            color: #fff;
+        }
+
+        .node-selector {
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 6px;
+            padding: 8px 12px;
+            color: white;
+            font-size: 0.9rem;
+            min-width: 150px;
+        }
+
+        .node-selector option {
+            background: #2a5298;
+            color: white;
+        }
+
+        .refresh-btn {
+            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+            border: none;
+            border-radius: 6px;
+            padding: 10px 20px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .refresh-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .refresh-btn:active {
+            transform: translateY(0);
+        }
+
+        .refresh-btn:disabled {
+            background: rgba(255, 255, 255, 0.3);
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .auto-refresh-toggle {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 50px;
+            height: 24px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .toggle-switch.active {
+            background: #4CAF50;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 20px;
+            height: 20px;
+            background: white;
+            border-radius: 50%;
+            transition: transform 0.3s ease;
+        }
+
+        .toggle-switch.active .toggle-slider {
+            transform: translateX(26px);
         }
 
         .status-item {
@@ -266,6 +369,32 @@
             <div class="status-item">
                 <div class="label">最后更新</div>
                 <div class="value" id="last-update">-</div>
+            </div>
+        </div>
+
+        <div class="control-bar">
+            <div class="control-group">
+                <label for="node-selector">选择节点:</label>
+                <select id="node-selector" class="node-selector">
+                    <option value="all">所有节点</option>
+                    <option value="beacon-chain-1:7777">Beacon-1</option>
+                    <option value="beacon-chain-2:7777">Beacon-2</option>
+                    <option value="beacon-chain-3:7777">Beacon-3</option>
+                    <option value="beacon-chain-4:7777">Beacon-4</option>
+                </select>
+            </div>
+            
+            <div class="control-group">
+                <button id="refresh-btn" class="refresh-btn">🔄 手动刷新</button>
+            </div>
+            
+            <div class="control-group">
+                <div class="auto-refresh-toggle">
+                    <label>自动刷新:</label>
+                    <div id="auto-refresh-toggle" class="toggle-switch">
+                        <div class="toggle-slider"></div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

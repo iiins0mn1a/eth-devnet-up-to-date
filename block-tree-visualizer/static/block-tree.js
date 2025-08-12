@@ -11,11 +11,15 @@ class BlockTreeVisualizer {
         this.nodes = [];
         this.links = [];
         this.simulation = null;
-        this.currentEndpoint = 'http://beacon-chain-1:7777';
+        this.currentEndpoint = 'all';
+        this.autoRefresh = false;
+        this.refreshInterval = null;
+        this.isRefreshing = false;
         
         this.initWebSocket();
         this.initSVG();
         this.setupEventListeners();
+        this.setupControls();
     }
 
     initWebSocket() {
@@ -100,15 +104,20 @@ class BlockTreeVisualizer {
         console.log('收到WebSocket消息:', message.type);
         
         if (message.type === 'initial_data' || message.type === 'fork_choice_update') {
+            // 存储最新数据
             this.data = message.data;
-            this.updateVisualization();
-            this.updateStatusBar();
-            this.updateNodeList();
             
-            // 更新最后更新时间
-            const now = new Date();
-            document.getElementById('last-update').textContent = 
-                now.toLocaleTimeString('zh-CN');
+            // 只在自动刷新模式下或者是初始数据时更新可视化
+            if (this.autoRefresh || message.type === 'initial_data') {
+                this.updateVisualization();
+                this.updateStatusBar();
+                this.updateNodeList();
+                
+                // 更新最后更新时间
+                const now = new Date();
+                document.getElementById('last-update').textContent = 
+                    now.toLocaleTimeString('zh-CN');
+            }
         }
     }
 
@@ -130,11 +139,21 @@ class BlockTreeVisualizer {
     updateStatusBar() {
         if (!this.data || Object.keys(this.data).length === 0) return;
         
-        // 使用第一个可用的节点数据
-        const firstEndpointData = Object.values(this.data)[0];
-        if (!firstEndpointData) return;
+        let selectedData;
         
-        const { nodes, head_root, finalized_checkpoint } = firstEndpointData;
+        if (this.currentEndpoint === 'all') {
+            selectedData = Object.values(this.data)[0];
+        } else {
+            const fullEndpoint = `http://${this.currentEndpoint}`;
+            selectedData = this.data[fullEndpoint];
+            if (!selectedData) {
+                selectedData = Object.values(this.data)[0];
+            }
+        }
+        
+        if (!selectedData) return;
+        
+        const { nodes, head_root, finalized_checkpoint } = selectedData;
         
         // 找到头部节点
         const headNode = nodes.find(node => node.block_root === head_root);
@@ -145,6 +164,11 @@ class BlockTreeVisualizer {
         document.getElementById('finalized-epoch').textContent = 
             finalized_checkpoint.epoch || '0';
         document.getElementById('active-nodes').textContent = nodes.length;
+        
+        // 更新连接状态，显示当前选择的节点
+        const nodeInfo = this.currentEndpoint === 'all' ? '所有节点' : this.currentEndpoint;
+        document.getElementById('connection-status').textContent = 
+            `已连接 (${nodeInfo})`;
     }
 
     updateNodeList() {
@@ -153,11 +177,21 @@ class BlockTreeVisualizer {
         
         if (!this.data || Object.keys(this.data).length === 0) return;
         
-        // 使用第一个可用的节点数据
-        const firstEndpointData = Object.values(this.data)[0];
-        if (!firstEndpointData) return;
+        let selectedData;
         
-        const { nodes, head_root, finalized_checkpoint } = firstEndpointData;
+        if (this.currentEndpoint === 'all') {
+            selectedData = Object.values(this.data)[0];
+        } else {
+            const fullEndpoint = `http://${this.currentEndpoint}`;
+            selectedData = this.data[fullEndpoint];
+            if (!selectedData) {
+                selectedData = Object.values(this.data)[0];
+            }
+        }
+        
+        if (!selectedData) return;
+        
+        const { nodes, head_root, finalized_checkpoint } = selectedData;
         const finalizedEpoch = parseInt(finalized_checkpoint.epoch || '0');
         
         // 按槽位排序
@@ -203,14 +237,88 @@ class BlockTreeVisualizer {
         return num.toString();
     }
 
+    setupControls() {
+        // 节点选择器
+        const nodeSelector = document.getElementById('node-selector');
+        nodeSelector.addEventListener('change', (e) => {
+            this.currentEndpoint = e.target.value;
+            this.updateVisualization();
+        });
+
+        // 手动刷新按钮
+        const refreshBtn = document.getElementById('refresh-btn');
+        refreshBtn.addEventListener('click', () => {
+            this.manualRefresh();
+        });
+
+        // 自动刷新开关
+        const autoRefreshToggle = document.getElementById('auto-refresh-toggle');
+        autoRefreshToggle.addEventListener('click', () => {
+            this.toggleAutoRefresh();
+        });
+    }
+
+    manualRefresh() {
+        if (this.isRefreshing) return;
+        
+        this.isRefreshing = true;
+        const refreshBtn = document.getElementById('refresh-btn');
+        refreshBtn.disabled = true;
+        refreshBtn.textContent = '🔄 刷新中...';
+
+        // 更新可视化
+        this.updateVisualization();
+        this.updateStatusBar();
+        this.updateNodeList();
+
+        // 更新时间
+        const now = new Date();
+        document.getElementById('last-update').textContent = 
+            now.toLocaleTimeString('zh-CN');
+
+        // 恢复按钮状态
+        setTimeout(() => {
+            this.isRefreshing = false;
+            refreshBtn.disabled = false;
+            refreshBtn.textContent = '🔄 手动刷新';
+        }, 500);
+    }
+
+    toggleAutoRefresh() {
+        this.autoRefresh = !this.autoRefresh;
+        const toggle = document.getElementById('auto-refresh-toggle');
+        
+        if (this.autoRefresh) {
+            toggle.classList.add('active');
+        } else {
+            toggle.classList.remove('active');
+        }
+
+        console.log('自动刷新模式:', this.autoRefresh ? '开启' : '关闭');
+    }
+
     updateVisualization() {
         if (!this.data || Object.keys(this.data).length === 0) return;
         
-        // 使用第一个可用的节点数据进行可视化
-        const firstEndpointData = Object.values(this.data)[0];
-        if (!firstEndpointData) return;
+        let selectedData;
         
-        this.processData(firstEndpointData);
+        if (this.currentEndpoint === 'all') {
+            // 使用第一个可用的节点数据
+            selectedData = Object.values(this.data)[0];
+        } else {
+            // 使用指定节点的数据
+            const fullEndpoint = `http://${this.currentEndpoint}`;
+            selectedData = this.data[fullEndpoint];
+            
+            if (!selectedData) {
+                console.warn(`未找到节点 ${this.currentEndpoint} 的数据`);
+                selectedData = Object.values(this.data)[0];
+            }
+        }
+        
+        if (!selectedData) return;
+        
+        this.processData(selectedData);
         this.renderTree();
     }
 
@@ -260,16 +368,23 @@ class BlockTreeVisualizer {
         const width = this.svg.node().clientWidth;
         const height = this.svg.node().clientHeight;
         
+        // 停止之前的模拟
+        if (this.simulation) {
+            this.simulation.stop();
+        }
+        
         // 清除之前的内容
         this.g.selectAll('*').remove();
         
-        // 创建力导向图模拟
+        // 创建稳定的力导向图模拟
         this.simulation = d3.forceSimulation(this.nodes)
-            .force('link', d3.forceLink(this.links).id(d => d.id).distance(80))
-            .force('charge', d3.forceManyBody().strength(-200))
+            .force('link', d3.forceLink(this.links).id(d => d.id).distance(100))
+            .force('charge', d3.forceManyBody().strength(-300))
             .force('center', d3.forceCenter(width / 2, height / 2))
-            .force('y', d3.forceY().strength(0.1))
-            .force('collision', d3.forceCollide().radius(15));
+            .force('y', d3.forceY().strength(0.05))
+            .force('collision', d3.forceCollide().radius(20))
+            .alphaDecay(0.01)  // 更慢的衰减，更稳定的布局
+            .velocityDecay(0.3);  // 更高的速度衰减，减少震荡
         
         // 绘制连接线
         const link = this.g.append('g')
